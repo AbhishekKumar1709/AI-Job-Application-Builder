@@ -37,7 +37,7 @@ npx prisma migrate dev --name init
 npm run dev
 ```
 
-The app runs at http://localhost:3000.
+The app runs at http://localhost:1001.
 
 ## Environment variables
 
