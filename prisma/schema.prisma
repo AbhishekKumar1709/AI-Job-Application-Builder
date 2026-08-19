@@ -1,0 +1,19 @@
+// Prisma schema for AI Job Application Builder
+// Dev datasource is SQLite (file-based, zero setup). Swap provider to
+// "postgresql" and set DATABASE_URL for production before shipping.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// Placeholder model so `prisma migrate dev` has something to migrate.
+// Replace/extend once auth and the resume domain model are designed.
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
