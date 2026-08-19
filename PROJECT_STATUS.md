@@ -9,9 +9,9 @@ Last updated: 2026-08-20
 - [x] Prisma configured with SQLite (dev) and a placeholder `User` model
 - [x] GitHub repo created (`AI-Job-Application-Builder`)
 - [x] Baseline documentation set created
-- [ ] Design system / UI_DESIGN.md filled in with real decisions
+- [x] Landing page (roadmap-only, no functional CTAs yet)
+- [ ] Design system / UI_DESIGN.md filled in with full component set
 - [ ] Authentication
-- [ ] Landing page
 
 ## Phase 2 — Core resume features
 

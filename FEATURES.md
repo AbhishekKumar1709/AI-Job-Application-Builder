@@ -1,8 +1,24 @@
 # Features
 
-No product features are implemented yet. This file will track each feature
-as it's built. Statuses: Planned / In Progress / Complete / Needs Testing /
-Blocked.
+This file tracks each feature as it's built. Statuses: Planned / In
+Progress / Complete / Needs Testing / Blocked.
+
+## Landing page
+
+- **Description:** Static marketing/roadmap page shown at `/`. Explains
+  what the product will do and links to the roadmap; no functional
+  sign-up/login yet (none of its buttons/links are placeholders — the
+  "See what's planned" link scrolls to the on-page roadmap section, and
+  "View source on GitHub" links to the real repo).
+- **Status:** Complete
+- **Dependencies:** none
+- **Related files:** `app/page.tsx`, `components/Hero.tsx`,
+  `components/Roadmap.tsx`, `components/SiteHeader.tsx`,
+  `components/SiteFooter.tsx`
+- **API requirements:** none
+- **Database requirements:** none
+- **Testing status:** Manually verified — `npm run build` passes, page
+  loads at localhost and on the Vercel deployment.
 
 ## Master profile
 

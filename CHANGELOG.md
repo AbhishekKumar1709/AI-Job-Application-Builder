@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-08-20 (2)
+
+### Added
+- Real landing page replacing the default Next.js starter page: header,
+  hero, roadmap section, footer (`app/page.tsx`, `components/`)
+- Design tokens (colors) in `app/globals.css`, documented in
+  `docs/UI_DESIGN.md`
+
+### Changed
+- Dev/start scripts now run on port 1001 instead of the default 3000
+
 ## 2026-08-20
 
 ### Added
