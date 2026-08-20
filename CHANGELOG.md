@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-08-20 (3)
+
+### Added
+- Email+password authentication via NextAuth (Auth.js v4), Credentials
+  provider, JWT sessions
+- `/signup`, `/login`, protected `/dashboard` pages; sign-out button
+- `POST /api/auth/signup` endpoint with email/password validation
+- `User.passwordHash` and `User.name` fields (migration `add_password_auth`)
+- Prisma 7 driver adapter setup (`@prisma/adapter-libsql`) — required by
+  Prisma 7's client, chosen over `better-sqlite3` because that needs native
+  compilation this machine isn't set up for
+- `NEXTAUTH_URL` / `NEXTAUTH_SECRET` env vars
+
+### Changed
+- Landing page header/hero now link to real `/signup` and `/login` pages
+
 ## 2026-08-20 (2)
 
 ### Added

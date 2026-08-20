@@ -1,16 +1,21 @@
 # Security
 
-**No authentication, authorization, or security hardening is implemented
-yet.** This document records intended principles to build against.
+## Authentication
 
-## Authentication (planned)
+Implemented via NextAuth (Auth.js v4) with a Credentials provider — email +
+password, no OAuth. Passwords are hashed with bcrypt (`bcryptjs`, 10 salt
+rounds) before being stored; the plaintext password is never persisted or
+logged. Sessions use signed/encrypted JWTs (`NEXTAUTH_SECRET`), not
+database-backed sessions. See [lib/auth.ts](../lib/auth.ts).
 
-Not implemented. No provider chosen.
+Not yet implemented: password reset, email verification, rate limiting on
+login/signup attempts.
 
 ## Authorization (planned)
 
-Not implemented. Every user's data (resumes, uploads, profile) must be
-scoped to that user once auth exists — no cross-user access.
+No user-owned resources exist yet (profile, resumes, uploads) — once they
+do, every query must be scoped to the signed-in user's id from the session.
+No cross-user access.
 
 ## File security (planned)
 

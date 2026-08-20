@@ -2,7 +2,17 @@
 
 ## Current status
 
-No test suite is set up yet. `tests/` exists but is empty.
+No automated test suite is set up yet — `tests/` exists but is empty. The
+following has been manually tested against the running dev server (via
+curl, not just build/typecheck):
+
+- Landing page renders, `npm run build`/`npm run lint` pass.
+- `POST /api/auth/signup` — success (201), duplicate email (409), password
+  under 8 characters (400).
+- Unauthenticated request to `/dashboard` redirects to `/login` (307).
+- Credentials sign-in issues a session cookie; that cookie grants access
+  to `/dashboard`, which shows the signed-in user's email.
+- Test account created during this testing was deleted afterward.
 
 ## Planned
 

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export function SiteHeader() {
   return (
     <header className="border-b border-border">
@@ -17,6 +19,15 @@ export function SiteHeader() {
           >
             GitHub
           </a>
+          <Link href="/login" className="hover:text-foreground">
+            Log in
+          </Link>
+          <Link
+            href="/signup"
+            className="rounded-lg bg-accent px-3 py-1.5 text-accent-foreground hover:opacity-90"
+          >
+            Sign up
+          </Link>
         </nav>
       </div>
     </header>

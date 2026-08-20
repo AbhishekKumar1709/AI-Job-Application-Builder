@@ -1,8 +1,10 @@
+import Link from "next/link";
+
 export function Hero() {
   return (
     <section className="mx-auto max-w-3xl px-6 py-24 text-center">
       <p className="mb-4 inline-block rounded-full border border-border px-3 py-1 text-xs text-muted">
-        Early development — not yet functional
+        Early development — accounts work, resume tools don&apos;t yet
       </p>
       <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
         Build a resume that actually gets you hired
@@ -13,19 +15,17 @@ export function Hero() {
         tracking every application in one place.
       </p>
       <div className="mt-8 flex items-center justify-center gap-4">
-        <a
-          href="#roadmap"
+        <Link
+          href="/signup"
           className="rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-accent-foreground hover:opacity-90"
         >
-          See what&apos;s planned
-        </a>
+          Create an account
+        </Link>
         <a
-          href="https://github.com/AbhishekKumar1709/AI-Job-Application-Builder"
+          href="#roadmap"
           className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium hover:bg-surface"
-          target="_blank"
-          rel="noreferrer"
         >
-          View source on GitHub
+          See what&apos;s planned
         </a>
       </div>
     </section>

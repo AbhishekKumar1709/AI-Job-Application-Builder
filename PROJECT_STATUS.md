@@ -11,7 +11,9 @@ Last updated: 2026-08-20
 - [x] Baseline documentation set created
 - [x] Landing page (roadmap-only, no functional CTAs yet)
 - [ ] Design system / UI_DESIGN.md filled in with full component set
-- [ ] Authentication
+- [x] Authentication (email+password via NextAuth/Auth.js Credentials
+      provider, JWT sessions; signup/login/dashboard/logout tested
+      end-to-end)
 
 ## Phase 2 — Core resume features
 

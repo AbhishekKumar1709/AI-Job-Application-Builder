@@ -8,6 +8,11 @@ applications.
 > are set up. No product features are implemented yet. See
 > [PROJECT_STATUS.md](./PROJECT_STATUS.md) for what's actually done.
 
+## What works today
+
+- Landing page
+- Account creation and login (email + password), protected dashboard route
+
 ## Planned features
 
 - Resume builder with multiple templates
@@ -41,8 +46,10 @@ The app runs at http://localhost:1001.
 
 ## Environment variables
 
-See [.env.example](./.env.example). Currently only `DATABASE_URL` is
-required. An AI provider key will be added once AI features are built (see
+See [.env.example](./.env.example): `DATABASE_URL`, `NEXTAUTH_URL`, and
+`NEXTAUTH_SECRET` (generate one with
+`node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`).
+An AI provider key will be added once AI features are built (see
 [AI.md](./docs/AI.md)).
 
 ## Development commands

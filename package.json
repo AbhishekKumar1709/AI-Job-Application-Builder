@@ -9,9 +9,13 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@libsql/client": "^0.17.4",
+    "@prisma/adapter-libsql": "^7.9.1",
     "@prisma/client": "^7.9.1",
+    "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.2",
     "next": "16.3.1",
+    "next-auth": "^4.24.15",
     "prisma": "^7.9.1",
     "react": "19.2.8",
     "react-dom": "19.2.8"
