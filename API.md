@@ -22,6 +22,32 @@ since it's library-owned surface; see the
 [NextAuth v4 REST API docs](https://next-auth.js.org/getting-started/rest-api)
 for the full route list.
 
+## POST /api/otp/send
+
+- **Method:** POST
+- **Endpoint:** `/api/otp/send`
+- **Purpose:** Send an SMS OTP to a mobile number via MSG91.
+- **Authentication:** None required.
+- **Request format:** JSON — `{ "mobile": string }` (digits only, with country code, e.g. `91XXXXXXXXXX`)
+- **Response format:** `200` → `{ "ok": true }`
+- **Error responses:**
+  - `400` — invalid mobile number format
+  - `502` — MSG91 request failed (e.g. `MSG91_TEMPLATE_ID` not configured)
+- **Status:** Blocked — see FEATURES.md. Sending fails until a Sender
+  ID/template exist on the MSG91 side (needs DLT registration for India).
+
+## POST /api/otp/verify
+
+- **Method:** POST
+- **Endpoint:** `/api/otp/verify`
+- **Purpose:** Verify an OTP previously sent to a mobile number.
+- **Authentication:** None required.
+- **Request format:** JSON — `{ "mobile": string, "otp": string }`
+- **Response format:** `200` → `{ "ok": true }`
+- **Error responses:**
+  - `400` — missing/invalid mobile or otp
+  - `401` — incorrect or expired OTP
+
 No other API routes exist yet.
 
 ## Format for future entries

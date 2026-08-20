@@ -43,6 +43,25 @@ Progress / Complete / Needs Testing / Blocked.
   login issuing a session cookie, and that cookie unlocking `/dashboard`.
   No automated test suite yet.
 
+## Phone/OTP verification
+
+- **Description:** Send and verify a one-time SMS code via MSG91.
+  Currently a standalone test flow (`/verify-phone`), not wired into
+  signup/login.
+- **Status:** Blocked
+- **Dependencies:** MSG91 account (done), a Send OTP template with a
+  DLT-registered Sender ID — **blocked**: creating a Sender ID for SMS to
+  Indian numbers requires DLT registration, a separate telecom-regulator
+  process outside MSG91 (typically 1–3 days). No default/trial Sender ID
+  is available.
+- **Related files:** `lib/msg91.ts`, `app/api/otp/send/route.ts`,
+  `app/api/otp/verify/route.ts`, `app/verify-phone/page.tsx`
+- **API requirements:** `POST /api/otp/send`, `POST /api/otp/verify`. See
+  `API.md`.
+- **Database requirements:** none yet
+- **Testing status:** Not tested — cannot send a real OTP until a
+  template + Sender ID exist. Code builds and lints cleanly.
+
 ## Master profile
 
 - **Description:** Canonical store of a user's work history, education, and

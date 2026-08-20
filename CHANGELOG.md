@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-08-20 (6)
+
+### Added
+- MSG91 SMS OTP integration code: `lib/msg91.ts`, `POST /api/otp/send`,
+  `POST /api/otp/verify`, standalone test page at `/verify-phone`
+- `MSG91_AUTH_KEY` / `MSG91_TEMPLATE_ID` env vars
+
+### Blocked
+- OTP sending doesn't actually work yet — MSG91 requires a DLT-registered
+  Sender ID to send SMS to Indian numbers, which is a separate
+  telecom-regulator process (no default/trial Sender ID is available).
+  Paused until DLT registration is done. Not wired into signup/login.
+
 ## 2026-08-20 (5)
 
 ### Fixed

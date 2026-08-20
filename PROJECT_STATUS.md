@@ -28,6 +28,9 @@ Last updated: 2026-08-20
 - [ ] Resume templates
 - [ ] PDF export
 - [ ] Upload + parse existing resume (PDF/DOCX)
+- [~] Phone/OTP verification via MSG91 — code written (send/verify API +
+      test page), **blocked** on DLT registration for a Sender ID; not
+      wired into signup/login yet
 
 ## Phase 3 — AI features
 
