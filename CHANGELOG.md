@@ -1,5 +1,26 @@
 # Changelog
 
+## 2026-08-20 (4)
+
+### Added
+- Hosted Postgres database on Neon, provisioned via Vercel's Marketplace
+  integration and connected to Production/Preview/Development
+- `NEXTAUTH_SECRET`/`NEXTAUTH_URL` set on Vercel so login actually works
+  on the live deployment, not just locally
+
+### Changed
+- Switched Prisma from SQLite (`@prisma/adapter-libsql`) to Postgres
+  (`@prisma/adapter-pg`) — same database now used for local dev and
+  production instead of a local-only SQLite file
+- Migrations now run against the direct/unpooled Neon connection
+  (`DATABASE_URL_UNPOOLED`); the app uses the pooled `DATABASE_URL` at
+  runtime
+- Reset migration history (old SQLite-flavored SQL isn't valid Postgres)
+
+### Known issues
+- Production, Preview, and local Development all share the exact same
+  Neon database — no environment isolation yet. See DATABASE.md.
+
 ## 2026-08-20 (3)
 
 ### Added

@@ -21,11 +21,14 @@ marked "(planned)" are not built.
 
 ## Database architecture
 
-- Prisma ORM, SQLite for local dev (see [prisma/schema.prisma](../prisma/schema.prisma)).
+- Prisma ORM, Postgres hosted on Neon (see [prisma/schema.prisma](../prisma/schema.prisma)),
+  provisioned via Vercel's Neon Marketplace integration. Same database for
+  local dev and production — see the known limitation noted in
+  [DATABASE.md](../DATABASE.md).
 - `User` model with `passwordHash` for credentials auth. See [DATABASE.md](../DATABASE.md).
 - Prisma 7's client requires a driver adapter at runtime; this project uses
-  `@prisma/adapter-libsql` (see [lib/prisma.ts](../lib/prisma.ts)) since it
-  needs no native compiler, unlike `better-sqlite3`.
+  `@prisma/adapter-pg` (see [lib/prisma.ts](../lib/prisma.ts)), a pure-JS
+  driver with no native compilation step.
 
 ## Authentication
 
@@ -61,11 +64,11 @@ rate limiting, and CSRF beyond NextAuth's built-in protections are not. See
 
 ```mermaid
 flowchart LR
-    Browser --> NextApp["Next.js App Router"]
+    Browser --> NextApp["Next.js App Router\n(Vercel)"]
     NextApp --> NextAuth["NextAuth (Credentials, JWT)"]
-    NextApp --> Prisma["Prisma ORM (libsql adapter)"]
+    NextApp --> Prisma["Prisma ORM (pg adapter)"]
     NextAuth --> Prisma
-    Prisma --> SQLite[("SQLite (dev.db)")]
+    Prisma --> Neon[("Postgres (Neon)")]
 ```
 
 Everything beyond this — master profile, resume builder, AI calls, file

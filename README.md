@@ -29,18 +29,23 @@ current capability.
 
 - **Framework:** Next.js (App Router, TypeScript)
 - **Styling:** Tailwind CSS
-- **Database:** SQLite via Prisma ORM (dev); swap to PostgreSQL for
-  production when needed
+- **Database:** Postgres (hosted on [Neon](https://neon.tech)) via Prisma
+  ORM — same database for local dev and production
 - **AI provider:** not yet integrated
 
 ## Installation
 
 ```bash
 npm install
-cp .env.example .env
-npx prisma migrate dev --name init
+cp .env.example .env   # then fill in DATABASE_URL / DATABASE_URL_UNPOOLED / NEXTAUTH_SECRET
+npx prisma generate
 npm run dev
 ```
+
+There's no local-only database — `DATABASE_URL` points at the same hosted
+Neon Postgres instance used in production. Get the connection strings from
+the Vercel dashboard (Storage tab) or `vercel env pull`. Only run
+`npx prisma migrate dev` when you're actually changing the schema.
 
 The app runs at http://localhost:1001.
 

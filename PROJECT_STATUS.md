@@ -14,6 +14,9 @@ Last updated: 2026-08-20
 - [x] Authentication (email+password via NextAuth/Auth.js Credentials
       provider, JWT sessions; signup/login/dashboard/logout tested
       end-to-end)
+- [x] Hosted database (Postgres on Neon, connected in Production/Preview/
+      Development) — live deployment verified working, not just local dev
+- [ ] Separate database branch/instance per environment (currently shared)
 
 ## Phase 2 — Core resume features
 
