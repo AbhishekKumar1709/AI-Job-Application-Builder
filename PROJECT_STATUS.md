@@ -15,7 +15,10 @@ Last updated: 2026-08-20
       provider, JWT sessions; signup/login/dashboard/logout tested
       end-to-end)
 - [x] Hosted database (Postgres on Neon, connected in Production/Preview/
-      Development) — live deployment verified working, not just local dev
+      Development)
+- [x] Live production deployment verified working end-to-end (signup,
+      login, dashboard) at ai-job-application-builder.vercel.app, not
+      just local dev
 - [ ] Separate database branch/instance per environment (currently shared)
 
 ## Phase 2 — Core resume features

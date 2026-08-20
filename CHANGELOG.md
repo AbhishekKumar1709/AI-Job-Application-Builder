@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-08-20 (5)
+
+### Fixed
+- Production build was failing (`@prisma/client` had no exported
+  `PrismaClient`) because Vercel's build, like this machine, blocks
+  dependency postinstall scripts, so Prisma's own client-generation hook
+  never ran. Added an explicit `prisma generate` to the build script and a
+  project-level `postinstall` script.
+
+### Verified
+- Live production deployment (`ai-job-application-builder.vercel.app`)
+  confirmed working end-to-end: signup, credentials login, secure session
+  cookie, protected dashboard access. Test account deleted afterward.
+
 ## 2026-08-20 (4)
 
 ### Added

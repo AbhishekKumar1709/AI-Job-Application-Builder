@@ -12,7 +12,13 @@ curl, not just build/typecheck):
 - Unauthenticated request to `/dashboard` redirects to `/login` (307).
 - Credentials sign-in issues a session cookie; that cookie grants access
   to `/dashboard`, which shows the signed-in user's email.
-- Test account created during this testing was deleted afterward.
+- **Also re-verified against the live production deployment**
+  (`https://ai-job-application-builder.vercel.app`, not just local dev):
+  signup, credentials login (`__Secure-` session cookie over HTTPS), and
+  authenticated dashboard access all confirmed working there too.
+- All test accounts created during this testing were deleted afterward
+  (both from the local/dev database and, since Development currently
+  shares the same Neon database as Production, from there too).
 
 ## Planned
 
