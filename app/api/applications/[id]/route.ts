@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { SHORT_TEXT_MAX, LONG_TEXT_MAX, lengthError } from "@/lib/textLimits";
 
 const STATUSES = ["SAVED", "APPLIED", "INTERVIEWING", "OFFER", "REJECTED", "WITHDRAWN"];
 
@@ -58,6 +59,15 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   if (data.company === "" || data.role === "") {
     return NextResponse.json({ error: "Company and role are required." }, { status: 400 });
+  }
+
+  const lengthErr =
+    (typeof data.company === "string" && lengthError(data.company, SHORT_TEXT_MAX, "Company")) ||
+    (typeof data.role === "string" && lengthError(data.role, SHORT_TEXT_MAX, "Role")) ||
+    (typeof data.jobUrl === "string" && lengthError(data.jobUrl, SHORT_TEXT_MAX, "Job URL")) ||
+    (typeof data.notes === "string" && lengthError(data.notes, LONG_TEXT_MAX, "Notes"));
+  if (lengthErr) {
+    return NextResponse.json({ error: lengthErr }, { status: 400 });
   }
 
   const application = await prisma.application.update({

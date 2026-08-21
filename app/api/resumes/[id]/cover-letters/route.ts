@@ -4,7 +4,10 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getOwnedResume } from "@/lib/resumeAccess";
 import { formatResumeForPrompt } from "@/lib/resumeText";
-import { askClaudeText } from "@/lib/ai";
+import { askClaudeText, MAX_JOB_DESCRIPTION_LENGTH } from "@/lib/ai";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
+
+const MAX_COMPANY_NAME_LENGTH = 200;
 
 const SYSTEM_PROMPT = `You write cover letters. Given a candidate's resume content and a job
 description, write a concise, specific cover letter (3-4 short paragraphs) connecting the
@@ -39,6 +42,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 
+  const rateLimit = await checkRateLimit(`ai:cover-letters:${session.user.id}`, 10, 3600);
+  if (!rateLimit.allowed) {
+    return rateLimitResponse(rateLimit.retryAfterSeconds);
+  }
+
   const { id } = await params;
   const resume = await getOwnedResume(session.user.id, id);
   if (!resume) {
@@ -51,6 +59,18 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   if (!jobDescription) {
     return NextResponse.json({ error: "Job description is required." }, { status: 400 });
+  }
+  if (jobDescription.length > MAX_JOB_DESCRIPTION_LENGTH) {
+    return NextResponse.json(
+      { error: `Job description is too long (max ${MAX_JOB_DESCRIPTION_LENGTH} characters).` },
+      { status: 400 },
+    );
+  }
+  if (companyName && companyName.length > MAX_COMPANY_NAME_LENGTH) {
+    return NextResponse.json(
+      { error: `Company name is too long (max ${MAX_COMPANY_NAME_LENGTH} characters).` },
+      { status: 400 },
+    );
   }
 
   const resumeText = formatResumeForPrompt(resume);

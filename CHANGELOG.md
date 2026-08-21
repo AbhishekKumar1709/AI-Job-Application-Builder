@@ -1,5 +1,49 @@
 # Changelog
 
+## 2026-08-21 (7)
+
+### Added
+- Rate limiting (`lib/rateLimit.ts`, `RateLimitBucket` model, migration
+  `20260821030331_add_rate_limit_bucket`) — a Postgres-backed fixed-window
+  counter, not in-memory, since Vercel serverless functions don't share
+  memory across invocations. Applied to the 4 AI routes (15/hour/user for
+  optimize/ats-check/match, 10/hour for cover-letters — the routes with
+  real per-call Anthropic cost once a key is live), signup (5/hour/IP),
+  forgot-password (3/hour/email), and login (10 attempts/15min/email,
+  inside the NextAuth `authorize` callback).
+- Input length limits (`lib/textLimits.ts`) on every free-text field that
+  reaches an AI prompt or the database — profile/resume experience and
+  education, basic info, skill names, application fields — plus a
+  dedicated `MAX_JOB_DESCRIPTION_LENGTH` (10,000 chars) in `lib/ai.ts`
+  for `jobDescription` on `match`/`cover-letters`, which was previously
+  completely unbounded before being forwarded into a Claude prompt.
+- Brought `docs/SECURITY.md` current — it had been stale since before
+  Phase 2, still describing "no user-owned resources exist yet."
+
+### Fixed
+- `/login` hardcoded "Incorrect email or password" over every `signIn()`
+  error, which silently swallowed the new rate-limit message. Found via
+  the rate-limit testing below; fixed to show the actual message when
+  it's the rate-limit one.
+
+### Verified
+- Exceeded each of the five rate limits against the real dev server and
+  confirmed 429 with a correct `Retry-After` header lands on exactly the
+  request past the threshold; confirmed the four AI routes rate-limit
+  independently (hitting one's limit doesn't affect the others);
+  confirmed length caps reject over-limit input (400) and accept
+  exactly-at-the-limit input. Verified the login-page fix visually via a
+  Playwright screenshot showing the correct message. `npm run build` and
+  `npm run lint` pass. All test accounts and `RateLimitBucket` rows
+  created during testing deleted afterward.
+
+This was prompted by a full-codebase review (`docs/` cross-checked
+against the actual implementation) that flagged unbounded AI cost
+exposure as the top risk once `ANTHROPIC_API_KEY` goes live. Remaining
+flagged gaps — email verification, account deletion, the shared
+dev/preview/production database, and refreshing the rest of `docs/` — are
+tracked in `PROJECT_STATUS.md` but not addressed in this pass.
+
 ## 2026-08-21 (6)
 
 ### Added

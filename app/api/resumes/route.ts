@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { SHORT_TEXT_MAX, lengthError } from "@/lib/textLimits";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -28,6 +29,10 @@ export async function POST(request: Request) {
   const title = typeof body?.title === "string" ? body.title.trim() : "";
   if (!title) {
     return NextResponse.json({ error: "Title is required." }, { status: 400 });
+  }
+  const titleError = lengthError(title, SHORT_TEXT_MAX, "Title");
+  if (titleError) {
+    return NextResponse.json({ error: titleError }, { status: 400 });
   }
 
   const profile = await prisma.profile.findUnique({

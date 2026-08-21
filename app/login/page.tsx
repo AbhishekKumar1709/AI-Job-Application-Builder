@@ -26,7 +26,11 @@ export default function LoginPage() {
     setLoading(false);
 
     if (result?.error) {
-      setError("Incorrect email or password.");
+      setError(
+        result.error.startsWith("Too many login attempts")
+          ? result.error
+          : "Incorrect email or password.",
+      );
       return;
     }
 

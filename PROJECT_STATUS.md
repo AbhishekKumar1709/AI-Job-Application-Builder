@@ -78,12 +78,34 @@ Last updated: 2026-08-21
       deleting a linked resume unlinks rather than deletes the
       application (verified)
 
+## Post-roadmap hardening
+
+- [x] Rate limiting — Postgres-backed (`RateLimitBucket`), applied to the
+      4 AI routes (cost exposure), signup, login, and forgot-password;
+      tested by exceeding each limit and confirming 429 + `Retry-After`
+- [x] Input length caps — every free-text field that reaches an AI
+      prompt or the database, including a dedicated 10,000-char cap on
+      `jobDescription` (previously unbounded)
+- [x] Fixed a real bug the above testing surfaced: `/login` was
+      hardcoding "Incorrect email or password" over every `signIn()`
+      error, silently hiding the new rate-limit message from the user
+
+## Known gaps (not yet built)
+
+- No email verification on signup, account deletion/data export, or
+  account lockout beyond the login rate limit
+- Dev/Preview/Production share one Neon database (see `DATABASE.md`) —
+  now protecting real user data, not a placeholder table
+- Phase 1 design system (`UI_DESIGN.md`) not filled in beyond the
+  landing page
+- Live AI output untested — no `ANTHROPIC_API_KEY` set yet
+- `docs/ARCHITECTURE.md`, `AI.md`, `FILE_PROCESSING.md`, `UI_DESIGN.md`
+  still describe the pre-Phase-2 app; only `docs/SECURITY.md` has been
+  brought current so far
+
 ## Notes
 
 This file only records what has actually been built and verified running.
-All four phases' checked items above exist in the codebase and have been
-tested at least via curl against the real dev server; UI-level features
-additionally via a real browser (Playwright) session. The two remaining
-gaps are the Phase 1 design system and per-environment database
-separation, and live-testing the Phase 3 AI features once
-`ANTHROPIC_API_KEY` is set.
+All four roadmap phases' checked items above exist in the codebase and
+have been tested at least via curl against the real dev server; UI-level
+features additionally via a real browser (Playwright) session.

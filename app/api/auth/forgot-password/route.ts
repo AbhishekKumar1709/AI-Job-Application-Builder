@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { sendPasswordResetEmail } from "@/lib/email";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 
 const TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
 
@@ -11,6 +12,11 @@ export async function POST(request: Request) {
 
   if (!email || !email.includes("@")) {
     return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
+  }
+
+  const rateLimit = await checkRateLimit(`auth:forgot-password:${email}`, 3, 3600);
+  if (!rateLimit.allowed) {
+    return rateLimitResponse(rateLimit.retryAfterSeconds);
   }
 
   const genericResponse = NextResponse.json({

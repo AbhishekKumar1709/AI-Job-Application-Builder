@@ -196,3 +196,11 @@ model Application {
   @@index([userId])
   @@index([resumeId])
 }
+
+model RateLimitBucket {
+  key         String
+  windowStart DateTime
+  count       Int      @default(1)
+
+  @@id([key, windowStart])
+}

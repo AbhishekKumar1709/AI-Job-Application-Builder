@@ -1,3 +1,5 @@
+import { SHORT_TEXT_MAX, LONG_TEXT_MAX, lengthError } from "@/lib/textLimits";
+
 export type ExperienceInput = {
   company: string;
   title: string;
@@ -26,6 +28,15 @@ export function parseExperienceCreate(body: unknown): { data: ExperienceInput } 
   }
   if (endDate && Number.isNaN(endDate.getTime())) {
     return { error: "End date is invalid." };
+  }
+
+  const error =
+    lengthError(company, SHORT_TEXT_MAX, "Company") ||
+    lengthError(title, SHORT_TEXT_MAX, "Title") ||
+    (location && lengthError(location, SHORT_TEXT_MAX, "Location")) ||
+    (description && lengthError(description, LONG_TEXT_MAX, "Description"));
+  if (error) {
+    return { error };
   }
 
   return { data: { company, title, location, description, current, startDate, endDate } };
@@ -63,6 +74,15 @@ export function parseExperienceUpdate(body: unknown): { data: Record<string, unk
 
   if (data.company === "" || data.title === "") {
     return { error: "Company and title are required." };
+  }
+
+  const error =
+    (typeof data.company === "string" && lengthError(data.company, SHORT_TEXT_MAX, "Company")) ||
+    (typeof data.title === "string" && lengthError(data.title, SHORT_TEXT_MAX, "Title")) ||
+    (typeof data.location === "string" && lengthError(data.location, SHORT_TEXT_MAX, "Location")) ||
+    (typeof data.description === "string" && lengthError(data.description, LONG_TEXT_MAX, "Description"));
+  if (error) {
+    return { error };
   }
 
   return { data };

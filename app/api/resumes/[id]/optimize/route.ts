@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { getOwnedResume } from "@/lib/resumeAccess";
 import { formatResumeForPrompt } from "@/lib/resumeText";
 import { askClaudeJSON } from "@/lib/ai";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 
 type Suggestion = { section: string; issue: string; suggestion: string };
 
@@ -22,6 +23,11 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
+  }
+
+  const rateLimit = await checkRateLimit(`ai:optimize:${session.user.id}`, 15, 3600);
+  if (!rateLimit.allowed) {
+    return rateLimitResponse(rateLimit.retryAfterSeconds);
   }
 
   const { id } = await params;

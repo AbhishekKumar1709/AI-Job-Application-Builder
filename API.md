@@ -1,5 +1,18 @@
 # API
 
+## Rate limiting
+
+The following routes enforce a request limit and return `429` (with a
+`Retry-After` header, seconds) once exceeded — see `lib/rateLimit.ts`:
+
+- `POST /api/auth/signup` — 5/hour per IP
+- `POST /api/auth/forgot-password` — 3/hour per email
+- Credentials login (`/api/auth/callback/credentials`) — 10 attempts/15min per email
+- `POST /api/resumes/:id/optimize` / `ats-check` / `match` — 15/hour per user, per route
+- `POST /api/resumes/:id/cover-letters` — 10/hour per user
+
+No other routes are currently rate-limited.
+
 ## POST /api/auth/signup
 
 - **Method:** POST

@@ -2,6 +2,8 @@ import Anthropic from "@anthropic-ai/sdk";
 
 const MODEL = process.env.ANTHROPIC_MODEL || "claude-opus-5";
 
+export const MAX_JOB_DESCRIPTION_LENGTH = 10000;
+
 function client() {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {

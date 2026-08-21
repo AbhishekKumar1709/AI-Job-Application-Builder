@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { SHORT_TEXT_MAX, LONG_TEXT_MAX, lengthError } from "@/lib/textLimits";
 
 const STATUSES = ["SAVED", "APPLIED", "INTERVIEWING", "OFFER", "REJECTED", "WITHDRAWN"];
 
@@ -41,6 +42,15 @@ export async function POST(request: Request) {
 
   if (appliedAt && Number.isNaN(appliedAt.getTime())) {
     return NextResponse.json({ error: "Applied date is invalid." }, { status: 400 });
+  }
+
+  const lengthErr =
+    lengthError(company, SHORT_TEXT_MAX, "Company") ||
+    lengthError(role, SHORT_TEXT_MAX, "Role") ||
+    (jobUrl && lengthError(jobUrl, SHORT_TEXT_MAX, "Job URL")) ||
+    (notes && lengthError(notes, LONG_TEXT_MAX, "Notes"));
+  if (lengthErr) {
+    return NextResponse.json({ error: lengthErr }, { status: 400 });
   }
 
   if (resumeId) {

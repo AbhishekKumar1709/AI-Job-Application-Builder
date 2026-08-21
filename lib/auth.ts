@@ -2,6 +2,7 @@ import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit } from "@/lib/rateLimit";
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -22,8 +23,14 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
+        const email = credentials.email.toLowerCase();
+        const rateLimit = await checkRateLimit(`auth:login:${email}`, 10, 900);
+        if (!rateLimit.allowed) {
+          throw new Error("Too many login attempts. Try again later.");
+        }
+
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email.toLowerCase() },
+          where: { email },
         });
 
         if (!user) {

@@ -1,3 +1,5 @@
+import { SHORT_TEXT_MAX, LONG_TEXT_MAX, lengthError } from "@/lib/textLimits";
+
 export type EducationInput = {
   institution: string;
   degree: string | null;
@@ -24,6 +26,15 @@ export function parseEducationCreate(body: unknown): { data: EducationInput } | 
   }
   if (endDate && Number.isNaN(endDate.getTime())) {
     return { error: "End date is invalid." };
+  }
+
+  const error =
+    lengthError(institution, SHORT_TEXT_MAX, "Institution") ||
+    (degree && lengthError(degree, SHORT_TEXT_MAX, "Degree")) ||
+    (fieldOfStudy && lengthError(fieldOfStudy, SHORT_TEXT_MAX, "Field of study")) ||
+    (description && lengthError(description, LONG_TEXT_MAX, "Description"));
+  if (error) {
+    return { error };
   }
 
   return { data: { institution, degree, fieldOfStudy, description, startDate, endDate } };
@@ -64,6 +75,15 @@ export function parseEducationUpdate(body: unknown): { data: Record<string, unkn
 
   if (data.institution === "") {
     return { error: "Institution is required." };
+  }
+
+  const error =
+    (typeof data.institution === "string" && lengthError(data.institution, SHORT_TEXT_MAX, "Institution")) ||
+    (typeof data.degree === "string" && lengthError(data.degree, SHORT_TEXT_MAX, "Degree")) ||
+    (typeof data.fieldOfStudy === "string" && lengthError(data.fieldOfStudy, SHORT_TEXT_MAX, "Field of study")) ||
+    (typeof data.description === "string" && lengthError(data.description, LONG_TEXT_MAX, "Description"));
+  if (error) {
+    return { error };
   }
 
   return { data };

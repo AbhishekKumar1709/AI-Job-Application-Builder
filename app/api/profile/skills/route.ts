@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateProfile } from "@/lib/profile";
+import { SHORT_TEXT_MAX, lengthError } from "@/lib/textLimits";
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
@@ -15,6 +16,10 @@ export async function POST(request: Request) {
 
   if (!name) {
     return NextResponse.json({ error: "Skill name is required." }, { status: 400 });
+  }
+  const nameError = lengthError(name, SHORT_TEXT_MAX, "Skill name");
+  if (nameError) {
+    return NextResponse.json({ error: nameError }, { status: 400 });
   }
 
   const profile = await getOrCreateProfile(session.user.id);

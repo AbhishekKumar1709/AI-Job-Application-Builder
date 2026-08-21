@@ -381,3 +381,52 @@ Progress / Complete / Needs Testing / Blocked.
   actual PDF file, then parsed that PDF back with this project's own
   `pdf-parse` integration and confirmed every field (name, contact info,
   summary, experience, education, skills) round-tripped correctly.
+
+## Rate limiting & input length limits
+
+- **Description:** Addresses two gaps flagged in a full-codebase
+  security review: unbounded AI API cost exposure and unbounded
+  brute-force/spam surface. `lib/rateLimit.ts` implements a fixed-window
+  counter backed by Postgres (`RateLimitBucket` model) rather than
+  in-memory, since Vercel serverless functions don't share memory
+  between invocations — an in-memory counter would silently reset per
+  request in production. Applied to:
+  - The four AI routes (`optimize`, `ats-check`, `match`:
+    15/hour/user/route; `cover-letters`: 10/hour/user) — the routes with
+    real per-call dollar cost once `ANTHROPIC_API_KEY` is live
+  - `POST /api/auth/signup` — 5/hour per IP
+  - `POST /api/auth/forgot-password` — 3/hour per email (checked before
+    the account-existence lookup, so it can't be used to probe which
+    emails have accounts)
+  - The credentials `authorize` callback in `lib/auth.ts` — 10 attempts
+    per 15 minutes per email, thrown as an `Error` so NextAuth's
+    credentials flow passes the message through to the client
+  - All four AI routes are rate-limited independently (separate keys per
+    route, not a shared budget)
+
+  Separately, `lib/textLimits.ts` adds max-length validation
+  (`SHORT_TEXT_MAX` = 200, `LONG_TEXT_MAX` = 2000 chars) to every
+  free-text field that reaches an AI prompt or the database: profile/
+  resume experience and education (shared `lib/experience.ts`/
+  `lib/education.ts` validators), profile/resume basic info (headline,
+  summary), skill names, and application fields. `jobDescription` on
+  `match` and `cover-letters` gets its own explicit 10,000-character cap
+  (`MAX_JOB_DESCRIPTION_LENGTH` in `lib/ai.ts`) since it was previously
+  completely unbounded before being forwarded into a Claude prompt.
+- **Status:** Complete
+- **Dependencies:** none
+- **Related files:** `lib/rateLimit.ts`, `lib/textLimits.ts`,
+  `prisma/schema.prisma` (`RateLimitBucket`), plus every route listed
+  above
+- **Testing status:** Tested end-to-end against the real dev server:
+  exceeded each of the five rate limits and confirmed 429 with a
+  correct `Retry-After` header on the request past the threshold (not
+  before, not one-off); confirmed the four AI routes rate-limit
+  independently of each other; confirmed length caps reject
+  over-the-limit input (400) and accept exactly-at-the-limit input.
+  Along the way, found and fixed a real bug this testing surfaced:
+  `/login`'s error handling hardcoded "Incorrect email or password" for
+  any `signIn()` error, so the rate-limit message was being silently
+  replaced — fixed to show the actual message when it's the rate-limit
+  one, verified visually via Playwright screenshot. Test accounts and
+  all `RateLimitBucket` rows created during testing deleted afterward.

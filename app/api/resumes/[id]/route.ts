@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getOwnedResume } from "@/lib/resumeAccess";
+import { SHORT_TEXT_MAX, LONG_TEXT_MAX, lengthError } from "@/lib/textLimits";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -46,6 +47,16 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (typeof body?.phone === "string") data.phone = body.phone.trim() || null;
   if (typeof body?.location === "string") data.location = body.location.trim() || null;
   if (typeof body?.summary === "string") data.summary = body.summary.trim() || null;
+
+  const error =
+    (typeof data.title === "string" && lengthError(data.title, SHORT_TEXT_MAX, "Title")) ||
+    (typeof data.headline === "string" && lengthError(data.headline, SHORT_TEXT_MAX, "Headline")) ||
+    (typeof data.phone === "string" && lengthError(data.phone, SHORT_TEXT_MAX, "Phone")) ||
+    (typeof data.location === "string" && lengthError(data.location, SHORT_TEXT_MAX, "Location")) ||
+    (typeof data.summary === "string" && lengthError(data.summary, LONG_TEXT_MAX, "Summary"));
+  if (error) {
+    return NextResponse.json({ error }, { status: 400 });
+  }
 
   const resume = await prisma.resume.update({ where: { id }, data });
   return NextResponse.json({ resume });

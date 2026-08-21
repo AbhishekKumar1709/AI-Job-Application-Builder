@@ -3,7 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { getOwnedResume } from "@/lib/resumeAccess";
 import { formatResumeForPrompt } from "@/lib/resumeText";
-import { askClaudeJSON } from "@/lib/ai";
+import { askClaudeJSON, MAX_JOB_DESCRIPTION_LENGTH } from "@/lib/ai";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 
 type MatchResult = {
   matchScore: number;
@@ -26,6 +27,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 
+  const rateLimit = await checkRateLimit(`ai:match:${session.user.id}`, 15, 3600);
+  if (!rateLimit.allowed) {
+    return rateLimitResponse(rateLimit.retryAfterSeconds);
+  }
+
   const { id } = await params;
   const resume = await getOwnedResume(session.user.id, id);
   if (!resume) {
@@ -36,6 +42,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const jobDescription = typeof body?.jobDescription === "string" ? body.jobDescription.trim() : "";
   if (!jobDescription) {
     return NextResponse.json({ error: "Job description is required." }, { status: 400 });
+  }
+  if (jobDescription.length > MAX_JOB_DESCRIPTION_LENGTH) {
+    return NextResponse.json(
+      { error: `Job description is too long (max ${MAX_JOB_DESCRIPTION_LENGTH} characters).` },
+      { status: 400 },
+    );
   }
 
   const resumeText = formatResumeForPrompt(resume);
