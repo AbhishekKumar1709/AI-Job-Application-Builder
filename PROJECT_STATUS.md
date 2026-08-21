@@ -31,8 +31,14 @@ Last updated: 2026-08-21
       each resume snapshots the master profile at creation, then edits
       independently; tested end-to-end via curl with two accounts, UI
       not yet clicked through in a browser
-- [ ] Resume templates
-- [ ] PDF export
+- [x] Resume templates — `/resumes/:id/preview`, one clean formatted
+      document (not multiple selectable designs); verified visually via
+      Playwright screenshots against the live dev server, print media
+      included
+- [x] PDF export — "Download / print PDF" via `window.print()` against
+      the print-styled preview; verified by generating a real PDF with
+      Playwright and parsing it back with the project's own pdf-parse
+      integration, confirming every field round-tripped correctly
 - [x] Upload + parse existing resume (PDF/DOCX) — `/profile/import`;
       heuristic parse only, review-before-save into the real profile;
       tested end-to-end against real PDF and DOCX files, dev and

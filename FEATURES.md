@@ -181,7 +181,26 @@ Progress / Complete / Needs Testing / Blocked.
 
 ## Resume templates
 
-- **Status:** Planned
+- **Description:** `/resumes/:id/preview` renders a resume's data
+  (name/email from the account, headline, contact line, summary,
+  experience, education, skills) as a single clean formatted document.
+  One template for now, not a gallery of selectable designs — this
+  covers "view/export a resume as a real document"; multiple visual
+  templates would be a separate follow-up if wanted. Doubles as the PDF
+  export surface (see below).
+- **Status:** Complete
+- **Dependencies:** Resume builder
+- **Related files:** `app/resumes/[id]/preview/page.tsx`,
+  `components/ResumePreview.tsx`, print rules in `app/globals.css`
+- **Testing status:** Verified visually with Playwright against the real
+  dev server (screenshot of the rendered page, and again under
+  `emulateMedia({ media: 'print' })`) using a fully populated test
+  resume — confirmed no console/page errors, correct data rendering,
+  and that the editor chrome (back link, download button) is hidden in
+  print output via the `.no-print` / `.resume-doc` print rules. Also
+  verified the page redirects unauthenticated visitors to `/login` and
+  shows a not-found state for a nonexistent/unowned resume id. Test
+  account deleted afterward.
 
 ## Resume upload / parsing (PDF, DOCX)
 
@@ -316,4 +335,18 @@ Progress / Complete / Needs Testing / Blocked.
 
 ## PDF export
 
-- **Status:** Planned
+- **Description:** "Download / print PDF" on `/resumes/:id/preview`
+  calls the browser's native `window.print()` against the print-styled
+  document — the standard "print to PDF" path every browser already
+  supports, rather than a server-side PDF-generation dependency
+  (Puppeteer, etc.) that would add significant weight and Vercel
+  serverless fragility for a personal project at this scale.
+- **Status:** Complete
+- **Dependencies:** Resume templates
+- **Related files:** same as Resume templates above
+- **Testing status:** Verified for real — used Playwright's `page.pdf()`
+  (the same underlying Chromium print-to-PDF engine `window.print()`'s
+  "Save as PDF" invokes) against the live preview page, producing an
+  actual PDF file, then parsed that PDF back with this project's own
+  `pdf-parse` integration and confirmed every field (name, contact info,
+  summary, experience, education, skills) round-tripped correctly.

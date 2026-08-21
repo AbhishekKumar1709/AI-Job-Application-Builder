@@ -1,5 +1,34 @@
 # Changelog
 
+## 2026-08-21 (5)
+
+### Added
+- Resume templates: `/resumes/:id/preview` — a single clean, formatted
+  resume document (`components/ResumePreview.tsx`) rendering a resume's
+  data as a real document (name/email from the account, headline,
+  contact line, summary, experience, education, skills)
+- PDF export: "Download / print PDF" button uses the browser's native
+  `window.print()` against print-specific CSS rules added to
+  `app/globals.css` (`.no-print`, `.resume-doc` print overrides, forced
+  light background/text for print regardless of theme) — no new
+  server-side PDF-generation dependency
+- Linked from `/resumes/:id` ("Preview / Export PDF")
+
+### Verified
+- Used a scratch Playwright install (browsers were already cached
+  locally) to actually drive the running dev server rather than just
+  reading the code: screenshotted the preview page normally and under
+  `emulateMedia({media: 'print'})` with a fully populated test resume,
+  confirmed zero console/page errors, confirmed editor chrome is hidden
+  in print output, confirmed unauthenticated visitors get redirected to
+  `/login`.
+- Generated a real PDF via Playwright's `page.pdf()` (the same Chromium
+  print-to-PDF engine the browser's own "Save as PDF" uses), then parsed
+  it back with this project's own `pdf-parse` integration and confirmed
+  every field survived the round trip correctly.
+- `npm run build` and `npm run lint` pass. Test account, its data, and
+  all scratch Playwright/screenshot/PDF files deleted afterward.
+
 ## 2026-08-21 (4)
 
 ### Added
