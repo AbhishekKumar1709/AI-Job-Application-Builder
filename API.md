@@ -254,6 +254,22 @@ for the full route list.
   - `401` — not authenticated
   - `404` — resume or entry not found / not owned by the caller
 
+## POST /api/profile/parse-resume
+
+- **Method:** POST
+- **Endpoint:** `/api/profile/parse-resume`
+- **Purpose:** Extract text from an uploaded `.pdf` or `.docx` resume and
+  run a best-effort heuristic parse. Does not write to the database —
+  returns a draft for the client to review and selectively add via the
+  existing `/api/profile/*` endpoints.
+- **Authentication:** Required (session cookie).
+- **Request format:** `multipart/form-data` with a `file` field (max 5MB, `.pdf` or `.docx`)
+- **Response format:** `200` → `{ "parsed": { email, phone, summary, skills: string[], experiences: [...], education: [...] } }`
+- **Error responses:**
+  - `400` — no file, file too large, or unsupported file type
+  - `401` — not authenticated
+  - `422` — file couldn't be parsed (e.g. no extractable text, scanned image, corrupt file)
+
 No other API routes exist yet.
 
 ## Format for future entries

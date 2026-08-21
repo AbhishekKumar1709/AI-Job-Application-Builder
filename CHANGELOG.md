@@ -1,5 +1,43 @@
 # Changelog
 
+## 2026-08-21 (3)
+
+### Added
+- Resume upload/parsing (Phase 2): `/profile/import` uploads a PDF/DOCX
+  resume, extracts text (`pdf-parse`, `mammoth`), and runs a heuristic
+  parser (`lib/resumeParse.ts`) for contact info, summary, skills, and
+  per-entry experience/education (title/institution, company, dates,
+  description). `POST /api/profile/parse-resume` returns a draft only —
+  nothing is saved until the user reviews and adds each item individually
+  via the existing profile endpoints.
+- `serverExternalPackages: ["pdf-parse", "pdfjs-dist"]` in
+  `next.config.ts` — required for pdf-parse's worker module to resolve
+  correctly under Turbopack's bundled server output; without it, PDF
+  parsing fails in both dev and production.
+
+### Fixed (caught during testing, before this shipped)
+- pdf-parse's own "-- N of M --" page-separator text was leaking into
+  the parsed skills list.
+- The block-splitter originally used blank lines to separate resume
+  entries, but PDF extraction usually drops blank lines and DOCX
+  extraction adds one after every paragraph — both broke multi-entry
+  splitting. Rewrote it to anchor on date-range line positions instead,
+  with a per-section expected header length (job entries: 1 line;
+  education entries: 2, to handle "institution" / "degree" on separate
+  lines).
+
+### Verified
+- Tested end-to-end via curl against the real HTTP endpoint (not just
+  the parsing function) using a hand-built minimal PDF and a hand-built
+  minimal DOCX, each containing a realistic two-job, two-education,
+  five-skill resume. Confirmed correct extraction of every field in both
+  formats, error handling (401/400/422), and the full "add to profile"
+  path landing correctly in the database. Re-verified PDF and DOCX
+  parsing under a production `npm run build && npm start`, not just dev,
+  since the worker-resolution bug above only surfaced under bundling.
+  `npm run build` and `npm run lint` pass. Test account and all test
+  files deleted afterward.
+
 ## 2026-08-21 (2)
 
 ### Added

@@ -23,6 +23,9 @@ export default async function ProfilePage() {
         Your canonical work history, education, and skills — reused when
         building resumes and cover letters.
       </p>
+      <Link href="/profile/import" className="mt-3 self-start text-sm text-accent hover:underline">
+        Import from an existing resume (PDF/DOCX) →
+      </Link>
 
       <ProfileEditor />
     </main>

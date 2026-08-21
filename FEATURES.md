@@ -185,7 +185,52 @@ Progress / Complete / Needs Testing / Blocked.
 
 ## Resume upload / parsing (PDF, DOCX)
 
-- **Status:** Planned
+- **Description:** `/profile/import` (linked from `/profile`) uploads a
+  `.pdf` or `.docx` resume, extracts its text (`pdf-parse` /
+  `mammoth`), and runs a heuristic parser (`lib/resumeParse.ts`) that
+  detects Summary/Experience/Education/Skills sections and splits
+  experience/education into per-entry blocks anchored on date-range
+  lines. Nothing is written to the database by the parse step — it
+  returns a draft only. The UI shows every detected item pre-filled into
+  the same editable form components used by the profile/resume editors,
+  and each item is added to the real profile individually (via the
+  existing `/api/profile/*` endpoints) only when the user clicks to add
+  it, so a bad guess never silently becomes real profile data.
+- **Status:** Complete
+- **Dependencies:** Master profile
+- **Related files:** `lib/resumeParse.ts`,
+  `app/api/profile/parse-resume/route.ts`, `app/profile/import/page.tsx`,
+  `components/ResumeImport.tsx`; reuses `components/profile/ExperienceForm.tsx`
+  and `EducationForm.tsx` and the existing profile CRUD endpoints for
+  adding confirmed items
+- **API requirements:** `POST /api/profile/parse-resume`. See `API.md`.
+- **Database requirements:** none (parsing is stateless; added items go
+  through the existing `Profile`/`Experience`/`Education`/`Skill` tables)
+- **Testing status:** Manually tested end-to-end against both a
+  hand-built minimal PDF and a hand-built minimal DOCX (each with a
+  realistic two-job, two-education, five-skill resume body), through the
+  real HTTP endpoint (not just the parsing function directly), under
+  both `npm run dev` and a production `npm run build && npm start`.
+  Verified: unauthenticated request rejected (401), no file (400),
+  unsupported file type (400), and correct extraction of email, phone,
+  summary, all skills, and every experience/education entry (title,
+  company/institution, dates, description) for both formats. Also
+  verified the full "add parsed item to profile" path lands correctly in
+  the real profile via the existing endpoints. Two real bugs were caught
+  and fixed during testing: pdf-parse's own "-- N of M --" page-separator
+  text was leaking into the skills list, and PDF/DOCX text extraction
+  don't preserve blank lines the same way, which was breaking multi-entry
+  splitting — the splitter now anchors on date-range lines instead of
+  blank lines. A third bug (`pdf-parse`/`pdfjs-dist`'s worker module
+  failing to resolve under Turbopack's bundled server output) was fixed
+  by adding `serverExternalPackages: ["pdf-parse", "pdfjs-dist"]` to
+  `next.config.ts` — this is a known Next.js/pdfjs-dist bundling
+  interaction, not specific to this app's code. Test account and its
+  profile data deleted afterward, along with the throwaway test files.
+  Known limitation: this is heuristic, not ML-based, parsing — resumes
+  with unusual section headers or formats will parse imperfectly, which
+  is why every field is shown for review/edit before being added rather
+  than being saved automatically.
 
 ## AI resume optimization
 

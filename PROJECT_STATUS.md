@@ -33,7 +33,10 @@ Last updated: 2026-08-20
       not yet clicked through in a browser
 - [ ] Resume templates
 - [ ] PDF export
-- [ ] Upload + parse existing resume (PDF/DOCX)
+- [x] Upload + parse existing resume (PDF/DOCX) — `/profile/import`;
+      heuristic parse only, review-before-save into the real profile;
+      tested end-to-end against real PDF and DOCX files, dev and
+      production builds
 - [~] Phone/OTP verification via MSG91 — code written (send/verify API +
       test page), **blocked** on DLT registration for a Sender ID; not
       wired into signup/login yet
