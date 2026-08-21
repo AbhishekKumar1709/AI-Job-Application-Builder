@@ -19,6 +19,7 @@ model User {
   passwordResetTokens PasswordResetToken[]
   profile            Profile?
   resumes            Resume[]
+  applications       Application[]
 }
 
 model Profile {
@@ -95,6 +96,7 @@ model Resume {
   education   ResumeEducation[]
   skills      ResumeSkill[]
   coverLetters CoverLetter[]
+  applications Application[]
 
   @@index([userId])
 }
@@ -165,4 +167,32 @@ model PasswordResetToken {
   createdAt DateTime  @default(now())
 
   @@index([userId])
+}
+
+enum ApplicationStatus {
+  SAVED
+  APPLIED
+  INTERVIEWING
+  OFFER
+  REJECTED
+  WITHDRAWN
+}
+
+model Application {
+  id        String            @id @default(cuid())
+  userId    String
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resumeId  String?
+  resume    Resume?           @relation(fields: [resumeId], references: [id], onDelete: SetNull)
+  company   String
+  role      String
+  status    ApplicationStatus @default(APPLIED)
+  jobUrl    String?
+  notes     String?
+  appliedAt DateTime?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@index([userId])
+  @@index([resumeId])
 }

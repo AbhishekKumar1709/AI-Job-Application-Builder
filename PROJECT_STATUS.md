@@ -68,10 +68,22 @@ Last updated: 2026-08-21
 
 ## Phase 4 — Application tracking
 
-- [ ] Application tracker (companies, statuses, dates)
-- [ ] Resume versioning per application
+- [x] Application tracker (companies, statuses, dates) — `/applications`,
+      full CRUD, tested via curl (auth/validation/ownership) and via a
+      real Playwright browser session (add/edit/delete through the UI,
+      zero console errors)
+- [x] Resume versioning per application — each application optionally
+      links to one of the user's independently-editable resume
+      snapshots (already the resume builder's design, see Phase 2);
+      deleting a linked resume unlinks rather than deletes the
+      application (verified)
 
 ## Notes
 
 This file only records what has actually been built and verified running.
-Nothing beyond "Phase 1" checked items above exists in the codebase yet.
+All four phases' checked items above exist in the codebase and have been
+tested at least via curl against the real dev server; UI-level features
+additionally via a real browser (Playwright) session. The two remaining
+gaps are the Phase 1 design system and per-environment database
+separation, and live-testing the Phase 3 AI features once
+`ANTHROPIC_API_KEY` is set.

@@ -323,6 +323,43 @@ for the full route list.
 - **Response format:** `200` → `{ "ok": true }`
 - **Error responses:** `401` / `404` (letter not found or not owned)
 
+## GET /api/applications
+
+- **Purpose:** List the signed-in user's job applications, newest
+  applied-date first, each including its linked resume's `id`/`title`
+  (or `null` if unlinked).
+- **Authentication:** Required (session cookie).
+- **Response format:** `200` → `{ "applications": Application[] }`
+- **Error responses:** `401` — not authenticated
+
+## POST /api/applications
+
+- **Purpose:** Create a job application entry.
+- **Authentication:** Required (session cookie).
+- **Request format:** JSON — `{ "company": string, "role": string, "status"?: "SAVED"|"APPLIED"|"INTERVIEWING"|"OFFER"|"REJECTED"|"WITHDRAWN" (default "APPLIED"), "jobUrl"?: string, "notes"?: string, "appliedAt"?: string, "resumeId"?: string }`
+- **Response format:** `201` → `{ "application": Application }`
+- **Error responses:**
+  - `400` — missing company/role, invalid applied date, or `resumeId` not owned by the caller
+  - `401` — not authenticated
+
+## PATCH /api/applications/:id
+
+- **Purpose:** Update any field of an application, including status transitions and (un)linking a resume.
+- **Authentication:** Required (session cookie).
+- **Request format:** JSON, all fields optional — same shape as `POST` above; pass `resumeId: null` to unlink.
+- **Response format:** `200` → `{ "application": Application }`
+- **Error responses:**
+  - `400` — company/role emptied out, invalid status, invalid date, or `resumeId` not owned by the caller
+  - `401` — not authenticated
+  - `404` — application not found or not owned by the caller
+
+## DELETE /api/applications/:id
+
+- **Purpose:** Delete an application.
+- **Authentication:** Required (session cookie).
+- **Response format:** `200` → `{ "ok": true }`
+- **Error responses:** `401` / `404` (not found or not owned)
+
 No other API routes exist yet.
 
 ## Format for future entries

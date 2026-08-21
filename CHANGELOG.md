@@ -1,5 +1,40 @@
 # Changelog
 
+## 2026-08-21 (6)
+
+### Added
+- Phase 4 (Application tracking), both items — the last of the roadmap:
+  `Application` model + `ApplicationStatus` enum (migration
+  `20260821023404_add_applications`); `/applications` (linked from
+  `/dashboard`) with full CRUD (`components/ApplicationsList.tsx`,
+  `app/api/applications/route.ts`,
+  `app/api/applications/[id]/route.ts`)
+- Resume versioning per application: an application can optionally link
+  to one of the user's resumes (picked via `GET /api/resumes`, already
+  built). Since resumes are already independent, per-tailorable
+  snapshots (Phase 2), that link *is* the per-application resume
+  version — no extra snapshot layer needed. Deleting a linked resume
+  sets the application's `resumeId` to `null` (`onDelete: SetNull`)
+  instead of deleting the application.
+
+### Verified
+- API tested via curl with two real accounts: auth (401), validation
+  (400 on missing company/role, invalid date, or a `resumeId` not owned
+  by the caller), full CRUD, status transitions, unlinking a resume,
+  cross-user ownership isolation, and confirmed deleting a linked resume
+  preserves the application (resumeId → null) rather than deleting it.
+- UI tested with a scratch Playwright browser session against the real
+  dev server: screenshotted the list, filled and submitted the add form,
+  confirmed the new entry appeared, edited its status through the UI,
+  and confirmed it was removed after delete — zero console/page errors
+  throughout.
+- `npm run build` and `npm run lint` pass. Test accounts and data
+  deleted afterward, along with the scratch Playwright install.
+
+This completes every item across all four roadmap phases except the
+Phase 1 design system, per-environment database separation, and
+live-testing the Phase 3 AI features (needs `ANTHROPIC_API_KEY`).
+
 ## 2026-08-21 (5)
 
 ### Added

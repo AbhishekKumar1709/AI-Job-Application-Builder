@@ -33,6 +33,12 @@ export default async function DashboardPage() {
         >
           My resumes
         </Link>
+        <Link
+          href="/applications"
+          className="rounded-lg border border-border px-4 py-2 text-sm font-medium hover:border-accent"
+        >
+          Applications
+        </Link>
       </div>
     </main>
   );

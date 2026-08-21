@@ -330,8 +330,39 @@ Progress / Complete / Needs Testing / Blocked.
 
 ## Application tracker
 
-- **Status:** Planned
-- **Dependencies:** Auth, database schema
+- **Description:** `/applications` (linked from `/dashboard`) lists a
+  user's job applications and lets them add/edit/delete entries:
+  company, role, status (Saved/Applied/Interviewing/Offer/Rejected/
+  Withdrawn), job posting URL, applied date, notes, and — this is the
+  "resume versioning per application" piece — an optional link to one
+  of the user's resumes, picked from a dropdown populated by the
+  existing `GET /api/resumes`. Since each resume is already an
+  independent, per-application-tailorable snapshot (see Resume builder
+  above), pointing an application at a specific resume row *is* its
+  resume version; no separate snapshot layer was needed on top. If the
+  linked resume is later deleted, the application is preserved with the
+  link cleared (`onDelete: SetNull`), never deleted along with it.
+- **Status:** Complete
+- **Dependencies:** Auth, resume builder
+- **Related files:** `app/api/applications/route.ts`,
+  `app/api/applications/[id]/route.ts`, `app/applications/page.tsx`,
+  `components/ApplicationsList.tsx`
+- **API requirements:** `GET/POST /api/applications`,
+  `PATCH/DELETE /api/applications/:id`. See `API.md`.
+- **Database requirements:** `Application` model + `ApplicationStatus`
+  enum (migration `20260821023404_add_applications`)
+- **Testing status:** Tested at both layers. API via curl with two real
+  accounts: auth (401), validation (400 on missing company/role, and on
+  a `resumeId` that doesn't belong to the caller), full CRUD, status
+  transitions, unlinking a resume, cross-user ownership isolation (404
+  on another user's application; can't link to another user's resume),
+  and confirmed deleting a linked resume preserves the application with
+  `resumeId` set to `null` rather than deleting it. UI via a scratch
+  Playwright browser session against the real dev server: screenshotted
+  the list, the add form being filled, the new entry appearing after
+  save, an edit changing its status, and its removal after delete — zero
+  console/page errors throughout. Test accounts and data deleted
+  afterward.
 
 ## PDF export
 
