@@ -1,5 +1,6 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { authOptions } from "@/lib/auth";
 import { SignOutButton } from "@/components/SignOutButton";
 
@@ -17,10 +18,22 @@ export default async function DashboardPage() {
         <SignOutButton />
       </div>
       <p className="mt-4 text-muted">
-        Signed in as {session.user.email}. This confirms authentication
-        works end to end — the master profile and resume builder that will
-        live here are not built yet.
+        Signed in as {session.user.email}.
       </p>
+      <div className="mt-6 flex gap-3">
+        <Link
+          href="/profile"
+          className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:opacity-90"
+        >
+          Edit master profile
+        </Link>
+        <Link
+          href="/resumes"
+          className="rounded-lg border border-border px-4 py-2 text-sm font-medium hover:border-accent"
+        >
+          My resumes
+        </Link>
+      </div>
     </main>
   );
 }

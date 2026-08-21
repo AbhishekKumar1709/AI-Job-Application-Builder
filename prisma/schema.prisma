@@ -11,9 +11,145 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  name         String?
-  email        String   @unique
-  passwordHash String
-  createdAt    DateTime @default(now())
+  id                 String              @id @default(cuid())
+  name               String?
+  email              String              @unique
+  passwordHash       String
+  createdAt          DateTime            @default(now())
+  passwordResetTokens PasswordResetToken[]
+  profile            Profile?
+  resumes            Resume[]
+}
+
+model Profile {
+  id          String       @id @default(cuid())
+  userId      String       @unique
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  headline    String?
+  phone       String?
+  location    String?
+  summary     String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  experiences Experience[]
+  education   Education[]
+  skills      Skill[]
+}
+
+model Experience {
+  id          String    @id @default(cuid())
+  profileId   String
+  profile     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  company     String
+  title       String
+  location    String?
+  startDate   DateTime
+  endDate     DateTime?
+  current     Boolean   @default(false)
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([profileId])
+}
+
+model Education {
+  id           String    @id @default(cuid())
+  profileId    String
+  profile      Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  institution  String
+  degree       String?
+  fieldOfStudy String?
+  startDate    DateTime?
+  endDate      DateTime?
+  description  String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([profileId])
+}
+
+model Skill {
+  id        String   @id @default(cuid())
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  name      String
+  createdAt DateTime @default(now())
+
+  @@unique([profileId, name])
+  @@index([profileId])
+}
+
+model Resume {
+  id          String             @id @default(cuid())
+  userId      String
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  headline    String?
+  phone       String?
+  location    String?
+  summary     String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  experiences ResumeExperience[]
+  education   ResumeEducation[]
+  skills      ResumeSkill[]
+
+  @@index([userId])
+}
+
+model ResumeExperience {
+  id          String    @id @default(cuid())
+  resumeId    String
+  resume      Resume    @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  company     String
+  title       String
+  location    String?
+  startDate   DateTime
+  endDate     DateTime?
+  current     Boolean   @default(false)
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([resumeId])
+}
+
+model ResumeEducation {
+  id           String    @id @default(cuid())
+  resumeId     String
+  resume       Resume    @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  institution  String
+  degree       String?
+  fieldOfStudy String?
+  startDate    DateTime?
+  endDate      DateTime?
+  description  String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([resumeId])
+}
+
+model ResumeSkill {
+  id        String   @id @default(cuid())
+  resumeId  String
+  resume    Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  name      String
+  createdAt DateTime @default(now())
+
+  @@unique([resumeId, name])
+  @@index([resumeId])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
 }

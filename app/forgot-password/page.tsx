@@ -1,15 +1,12 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-export default function LoginPage() {
-  const router = useRouter();
+export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(event: FormEvent) {
@@ -17,31 +14,43 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
 
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
+    const res = await fetch("/api/auth/forgot-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
     });
 
     setLoading(false);
 
-    if (result?.error) {
-      setError("Incorrect email or password.");
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setError(data.error ?? "Something went wrong. Try again.");
       return;
     }
 
-    router.push("/dashboard");
-    router.refresh();
+    setSent(true);
+  }
+
+  if (sent) {
+    return (
+      <main className="mx-auto flex max-w-sm flex-1 flex-col justify-center px-6 py-24">
+        <h1 className="text-2xl font-semibold tracking-tight">Check your email</h1>
+        <p className="mt-2 text-sm text-muted">
+          If an account exists for {email}, we&apos;ve sent a link to reset
+          your password. It expires in 1 hour.
+        </p>
+        <Link href="/login" className="mt-6 text-sm text-accent hover:underline">
+          Back to log in
+        </Link>
+      </main>
+    );
   }
 
   return (
     <main className="mx-auto flex max-w-sm flex-1 flex-col justify-center px-6 py-24">
-      <h1 className="text-2xl font-semibold tracking-tight">Log in</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Reset your password</h1>
       <p className="mt-1 text-sm text-muted">
-        Don&apos;t have an account?{" "}
-        <Link href="/signup" className="text-accent hover:underline">
-          Sign up
-        </Link>
+        Enter your account email and we&apos;ll send you a reset link.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-4">
@@ -56,21 +65,6 @@ export default function LoginPage() {
           />
         </label>
 
-        <label className="flex flex-col gap-1 text-sm">
-          Password
-          <input
-            type="password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-accent"
-          />
-        </label>
-
-        <Link href="/forgot-password" className="text-sm text-accent hover:underline">
-          Forgot password?
-        </Link>
-
         {error && <p className="text-sm text-red-500">{error}</p>}
 
         <button
@@ -78,9 +72,13 @@ export default function LoginPage() {
           disabled={loading}
           className="mt-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:opacity-90 disabled:opacity-50"
         >
-          {loading ? "Logging in…" : "Log in"}
+          {loading ? "Sending…" : "Send reset link"}
         </button>
       </form>
+
+      <Link href="/login" className="mt-6 text-sm text-accent hover:underline">
+        Back to log in
+      </Link>
     </main>
   );
 }

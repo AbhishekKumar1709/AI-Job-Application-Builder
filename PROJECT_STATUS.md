@@ -23,14 +23,23 @@ Last updated: 2026-08-20
 
 ## Phase 2 — Core resume features
 
-- [ ] Master profile (user's canonical work history/skills/education)
-- [ ] Resume builder / editor
+- [x] Master profile (user's canonical work history/skills/education) —
+      `/profile` page, full CRUD API, ownership-checked per user; tested
+      end-to-end via curl with two accounts, UI not yet clicked through
+      in a browser
+- [x] Resume builder / editor — `/resumes` list + `/resumes/:id` editor;
+      each resume snapshots the master profile at creation, then edits
+      independently; tested end-to-end via curl with two accounts, UI
+      not yet clicked through in a browser
 - [ ] Resume templates
 - [ ] PDF export
 - [ ] Upload + parse existing resume (PDF/DOCX)
 - [~] Phone/OTP verification via MSG91 — code written (send/verify API +
       test page), **blocked** on DLT registration for a Sender ID; not
       wired into signup/login yet
+- [~] Password reset via email (Resend) — code written (forgot/reset
+      password API + pages, linked from `/login`), needs `RESEND_API_KEY`
+      to test end-to-end
 
 ## Phase 3 — AI features
 

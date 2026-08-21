@@ -48,6 +48,212 @@ for the full route list.
   - `400` — missing/invalid mobile or otp
   - `401` — incorrect or expired OTP
 
+## POST /api/auth/forgot-password
+
+- **Method:** POST
+- **Endpoint:** `/api/auth/forgot-password`
+- **Purpose:** Request a password reset email. Always returns a generic
+  success message, whether or not the email is registered, to avoid
+  leaking which emails have accounts.
+- **Authentication:** None required.
+- **Request format:** JSON — `{ "email": string }`
+- **Response format:** `200` → `{ "message": string }`
+- **Error responses:**
+  - `400` — invalid email
+  - `502` — the account exists but the reset email failed to send (e.g.
+    `RESEND_API_KEY` not configured)
+- **Status:** Code-complete, not yet tested end-to-end — needs a
+  `RESEND_API_KEY`. See FEATURES.md.
+
+## POST /api/auth/reset-password
+
+- **Method:** POST
+- **Endpoint:** `/api/auth/reset-password`
+- **Purpose:** Consume a reset token (from the emailed link) and set a new
+  password. Single-use; expires 1 hour after being requested.
+- **Authentication:** None required (token in body is the credential).
+- **Request format:** JSON — `{ "token": string, "password": string }`
+- **Response format:** `200` → `{ "message": string }`
+- **Error responses:**
+  - `400` — password under 8 characters, or token missing/invalid/expired/used
+
+## GET /api/profile
+
+- **Method:** GET
+- **Endpoint:** `/api/profile`
+- **Purpose:** Fetch the signed-in user's master profile, including
+  experience, education, and skills.
+- **Authentication:** Required (session cookie).
+- **Response format:** `200` → `{ "profile": Profile | null }`, where
+  `Profile` includes `experiences[]` (newest `startDate` first),
+  `education[]` (newest `startDate` first), and `skills[]` (alphabetical).
+  `null` if the user hasn't saved anything yet.
+- **Error responses:**
+  - `401` — not authenticated
+
+## PUT /api/profile
+
+- **Method:** PUT
+- **Endpoint:** `/api/profile`
+- **Purpose:** Create or update the signed-in user's basic profile info.
+- **Authentication:** Required (session cookie).
+- **Request format:** JSON — `{ "headline"?: string, "phone"?: string, "location"?: string, "summary"?: string }`
+- **Response format:** `200` → `{ "profile": Profile }`
+- **Error responses:**
+  - `401` — not authenticated
+
+## POST /api/profile/experience
+
+- **Method:** POST
+- **Endpoint:** `/api/profile/experience`
+- **Purpose:** Add an experience entry to the signed-in user's profile
+  (creates the profile if it doesn't exist yet).
+- **Authentication:** Required (session cookie).
+- **Request format:** JSON — `{ "company": string, "title": string, "location"?: string, "startDate": string (ISO date), "endDate"?: string, "current"?: boolean, "description"?: string }`
+- **Response format:** `201` → `{ "experience": Experience }`
+- **Error responses:**
+  - `400` — missing company/title, or invalid start/end date
+  - `401` — not authenticated
+
+## PATCH /api/profile/experience/:id / DELETE /api/profile/experience/:id
+
+- **Purpose:** Update or delete one experience entry. Ownership is
+  checked server-side — an id belonging to another user's profile
+  returns `404`, never `403`, to avoid confirming it exists.
+- **Authentication:** Required (session cookie).
+- **Request format (PATCH):** JSON, all fields optional — same shape as
+  the POST body.
+- **Response format:** PATCH `200` → `{ "experience": Experience }`;
+  DELETE `200` → `{ "ok": true }`
+- **Error responses:**
+  - `400` — invalid date (PATCH) or company/title emptied out
+  - `401` — not authenticated
+  - `404` — entry not found or not owned by the caller
+
+## POST /api/profile/education
+
+- **Method:** POST
+- **Endpoint:** `/api/profile/education`
+- **Purpose:** Add an education entry to the signed-in user's profile
+  (creates the profile if it doesn't exist yet).
+- **Authentication:** Required (session cookie).
+- **Request format:** JSON — `{ "institution": string, "degree"?: string, "fieldOfStudy"?: string, "startDate"?: string, "endDate"?: string, "description"?: string }`
+- **Response format:** `201` → `{ "education": Education }`
+- **Error responses:**
+  - `400` — missing institution, or invalid start/end date
+  - `401` — not authenticated
+
+## PATCH /api/profile/education/:id / DELETE /api/profile/education/:id
+
+- **Purpose:** Update or delete one education entry. Same ownership
+  behavior as the experience routes above (`404` if not owned).
+- **Authentication:** Required (session cookie).
+- **Response format:** PATCH `200` → `{ "education": Education }`;
+  DELETE `200` → `{ "ok": true }`
+- **Error responses:**
+  - `400` — invalid date (PATCH) or institution emptied out
+  - `401` — not authenticated
+  - `404` — entry not found or not owned by the caller
+
+## POST /api/profile/skills
+
+- **Method:** POST
+- **Endpoint:** `/api/profile/skills`
+- **Purpose:** Add a skill to the signed-in user's profile (creates the
+  profile if it doesn't exist yet).
+- **Authentication:** Required (session cookie).
+- **Request format:** JSON — `{ "name": string }`
+- **Response format:** `201` → `{ "skill": Skill }`
+- **Error responses:**
+  - `400` — empty name
+  - `401` — not authenticated
+  - `409` — that skill name is already on the profile
+
+## DELETE /api/profile/skills/:id
+
+- **Purpose:** Remove a skill. Same ownership behavior as above (`404`
+  if not owned).
+- **Authentication:** Required (session cookie).
+- **Response format:** `200` → `{ "ok": true }`
+- **Error responses:**
+  - `401` — not authenticated
+  - `404` — skill not found or not owned by the caller
+
+## GET /api/resumes
+
+- **Method:** GET
+- **Endpoint:** `/api/resumes`
+- **Purpose:** List the signed-in user's resumes (summary only, no nested items).
+- **Authentication:** Required (session cookie).
+- **Response format:** `200` → `{ "resumes": Array<{ id, title, createdAt, updatedAt }> }`, newest-updated first.
+- **Error responses:**
+  - `401` — not authenticated
+
+## POST /api/resumes
+
+- **Method:** POST
+- **Endpoint:** `/api/resumes`
+- **Purpose:** Create a new resume. Copies the signed-in user's current
+  master profile (basic info, experience, education, skills) into the
+  new resume as an independent snapshot — editing the resume afterward
+  never changes the profile. If no profile exists yet, the resume is
+  created empty.
+- **Authentication:** Required (session cookie).
+- **Request format:** JSON — `{ "title": string }`
+- **Response format:** `201` → `{ "resume": Resume }` (full nested shape, same as `GET /api/resumes/:id`)
+- **Error responses:**
+  - `400` — missing title
+  - `401` — not authenticated
+
+## GET /api/resumes/:id
+
+- **Purpose:** Fetch one resume with its experience, education, and skills.
+- **Authentication:** Required (session cookie).
+- **Response format:** `200` → `{ "resume": Resume }`
+- **Error responses:**
+  - `401` — not authenticated
+  - `404` — resume not found or not owned by the caller
+
+## PATCH /api/resumes/:id
+
+- **Purpose:** Update a resume's basic info.
+- **Authentication:** Required (session cookie).
+- **Request format:** JSON, all fields optional — `{ "title"?: string, "headline"?: string, "phone"?: string, "location"?: string, "summary"?: string }`
+- **Response format:** `200` → `{ "resume": Resume }`
+- **Error responses:**
+  - `400` — title emptied out
+  - `401` — not authenticated
+  - `404` — resume not found or not owned by the caller
+
+## DELETE /api/resumes/:id
+
+- **Purpose:** Delete a resume and all its experience/education/skill entries.
+- **Authentication:** Required (session cookie).
+- **Response format:** `200` → `{ "ok": true }`
+- **Error responses:**
+  - `401` — not authenticated
+  - `404` — resume not found or not owned by the caller
+
+## Resume experience / education / skills
+
+- **Endpoints:** `POST /api/resumes/:id/experience`,
+  `PATCH|DELETE /api/resumes/:id/experience/:expId`,
+  `POST /api/resumes/:id/education`,
+  `PATCH|DELETE /api/resumes/:id/education/:eduId`,
+  `POST /api/resumes/:id/skills`,
+  `DELETE /api/resumes/:id/skills/:skillId`
+- **Purpose:** Same request/response shapes and validation as the
+  equivalent `/api/profile/*` routes above, but scoped to one resume
+  instead of the master profile. Ownership is checked on both the
+  resume (`:id`) and the sub-entry — a mismatched combination, or a
+  resume/entry belonging to another user, returns `404`.
+- **Authentication:** Required (session cookie).
+- **Error responses:**
+  - `400` — same validation as the profile routes (missing required
+    fields, invalid dates, duplicate skill name → `409`)
+  - `401` — not authenticated
+  - `404` — resume or entry not found / not owned by the caller
+
 No other API routes exist yet.
 
 ## Format for future entries
