@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getOwnedResume } from "@/lib/resumeAccess";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -10,14 +11,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   }
 
   const { id } = await params;
-  const resume = await prisma.resume.findFirst({
-    where: { id, userId: session.user.id },
-    include: {
-      experiences: { orderBy: { startDate: "desc" } },
-      education: { orderBy: { startDate: "desc" } },
-      skills: { orderBy: { name: "asc" } },
-    },
-  });
+  const resume = await getOwnedResume(session.user.id, id);
 
   if (!resume) {
     return NextResponse.json({ error: "Resume not found." }, { status: 404 });

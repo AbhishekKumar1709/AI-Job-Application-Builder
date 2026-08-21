@@ -270,6 +270,59 @@ for the full route list.
   - `401` — not authenticated
   - `422` — file couldn't be parsed (e.g. no extractable text, scanned image, corrupt file)
 
+## POST /api/resumes/:id/optimize
+
+- **Purpose:** Get AI resume-optimization suggestions for one resume.
+  Stateless — nothing is saved.
+- **Authentication:** Required (session cookie).
+- **Response format:** `200` → `{ "suggestions": Array<{ section, issue, suggestion }> }`
+- **Error responses:**
+  - `400` — resume has no content yet
+  - `401` — not authenticated
+  - `404` — resume not found or not owned by the caller
+  - `502` — the AI provider call failed (e.g. `ANTHROPIC_API_KEY` not set, or Claude's response wasn't valid JSON)
+
+## POST /api/resumes/:id/ats-check
+
+- **Purpose:** Get an AI ATS-compatibility score and issues/strengths for one resume. Stateless.
+- **Authentication:** Required (session cookie).
+- **Response format:** `200` → `{ "result": { score, issues: string[], strengths: string[] } }`
+- **Error responses:** same as `optimize` above.
+
+## POST /api/resumes/:id/match
+
+- **Purpose:** Compare a resume against a pasted job description. Stateless.
+- **Authentication:** Required (session cookie).
+- **Request format:** JSON — `{ "jobDescription": string }`
+- **Response format:** `200` → `{ "result": { matchScore, matchedKeywords: string[], missingKeywords: string[], suggestions: string[] } }`
+- **Error responses:**
+  - `400` — missing job description, or resume has no content
+  - `401` / `404` / `502` — same as `optimize` above
+
+## GET /api/resumes/:id/cover-letters
+
+- **Purpose:** List cover letters previously generated for a resume, newest first.
+- **Authentication:** Required (session cookie).
+- **Response format:** `200` → `{ "coverLetters": CoverLetter[] }`
+- **Error responses:** `401` / `404` (resume not found or not owned)
+
+## POST /api/resumes/:id/cover-letters
+
+- **Purpose:** Generate a cover letter from the resume + a job description, and save it.
+- **Authentication:** Required (session cookie).
+- **Request format:** JSON — `{ "jobDescription": string, "companyName"?: string }`
+- **Response format:** `201` → `{ "coverLetter": CoverLetter }`
+- **Error responses:**
+  - `400` — missing job description, or resume has no content
+  - `401` / `404` / `502` — same as `optimize` above
+
+## DELETE /api/resumes/:id/cover-letters/:letterId
+
+- **Purpose:** Delete a saved cover letter. Ownership checked on both the resume and the letter.
+- **Authentication:** Required (session cookie).
+- **Response format:** `200` → `{ "ok": true }`
+- **Error responses:** `401` / `404` (letter not found or not owned)
+
 No other API routes exist yet.
 
 ## Format for future entries

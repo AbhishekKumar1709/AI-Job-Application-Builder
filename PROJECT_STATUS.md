@@ -1,6 +1,6 @@
 # Project Status
 
-Last updated: 2026-08-20
+Last updated: 2026-08-21
 
 ## Phase 1 — Foundation
 
@@ -46,11 +46,19 @@ Last updated: 2026-08-20
 
 ## Phase 3 — AI features
 
-- [ ] AI provider integration
-- [ ] Resume optimization suggestions
-- [ ] ATS compatibility analysis
-- [ ] Job description matching
-- [ ] Cover letter generation
+- [x] AI provider integration — `lib/ai.ts` wraps the Anthropic SDK
+      (`claude-opus-5`, overridable via `ANTHROPIC_MODEL`)
+- [x] Resume optimization suggestions — `POST /api/resumes/:id/optimize`
+- [x] ATS compatibility analysis — `POST /api/resumes/:id/ats-check`
+- [x] Job description matching — `POST /api/resumes/:id/match`
+- [x] Cover letter generation — `POST/GET /api/resumes/:id/cover-letters`,
+      `DELETE .../cover-letters/:letterId`; the one AI output that's
+      persisted
+
+  All five: auth, ownership (incl. cross-user isolation), and validation
+  tested end-to-end via curl. Live AI output itself is untested —
+  `ANTHROPIC_API_KEY` isn't set; the missing-key error was confirmed to
+  surface correctly (502) rather than being swallowed.
 
 ## Phase 4 — Application tracking
 

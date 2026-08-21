@@ -232,25 +232,82 @@ Progress / Complete / Needs Testing / Blocked.
   is why every field is shown for review/edit before being added rather
   than being saved automatically.
 
+## AI provider integration
+
+- **Description:** `lib/ai.ts` wraps the Anthropic SDK (`claude-opus-5` by
+  default, overridable via `ANTHROPIC_MODEL`). Two helpers:
+  `askClaudeJSON` (system + user prompt → parsed JSON, throws on
+  non-JSON responses) and `askClaudeText` (→ plain text), both used by
+  the four features below. No custom fallback content is ever
+  substituted on API failure — errors surface to the caller as a real
+  error.
+- **Status:** Complete
+- **Dependencies:** none
+- **Related files:** `lib/ai.ts`, `lib/resumeText.ts` (formats a resume's
+  data into prompt text, shared by all four AI routes)
+- **Testing status:** Auth, validation, and error-path behavior verified
+  (see below) — `ANTHROPIC_API_KEY` isn't set, so no request has
+  actually reached Claude. Confirmed the missing-key error surfaces
+  correctly as a 502 rather than being swallowed, proving the code path
+  reaches the real API call.
+
 ## AI resume optimization
 
-- **Status:** Planned
-- **Dependencies:** AI provider integration
+- **Description:** `POST /api/resumes/:id/optimize` sends the resume's
+  content to Claude and returns concrete rewrite suggestions per
+  section. Stateless — not persisted, recomputed each time. Surfaced on
+  `/resumes/:id` under "AI tools".
+- **Status:** Complete (code), untested live — see AI provider integration
+- **Dependencies:** AI provider integration, resume builder
+- **Related files:** `app/api/resumes/[id]/optimize/route.ts`,
+  `components/ResumeAITools.tsx`
+- **Testing status:** 401 (unauthenticated), 404 (nonexistent/unowned
+  resume, including cross-user isolation), 400 (empty resume) all
+  verified via curl. Live suggestion quality not verified — no API key.
 
 ## ATS compatibility analysis
 
-- **Status:** Planned
-- **Dependencies:** AI provider integration
+- **Description:** `POST /api/resumes/:id/ats-check` asks Claude to
+  score the resume's ATS-friendliness (0-100) and list issues/strengths.
+  Stateless, shown on `/resumes/:id`.
+- **Status:** Complete (code), untested live — see AI provider integration
+- **Dependencies:** AI provider integration, resume builder
+- **Related files:** `app/api/resumes/[id]/ats-check/route.ts`,
+  `components/ResumeAITools.tsx`
+- **Testing status:** Same auth/ownership/validation coverage as resume
+  optimization, verified via curl. Live scoring not verified.
 
 ## Job description matching
 
-- **Status:** Planned
-- **Dependencies:** AI provider integration
+- **Description:** `POST /api/resumes/:id/match` compares the resume
+  against a pasted job description and returns a match score, matched/
+  missing keywords, and suggestions. Stateless, shown on `/resumes/:id`.
+- **Status:** Complete (code), untested live — see AI provider integration
+- **Dependencies:** AI provider integration, resume builder
+- **Related files:** `app/api/resumes/[id]/match/route.ts`,
+  `components/ResumeAITools.tsx`
+- **Testing status:** Same auth/ownership/validation coverage, plus a
+  missing-`jobDescription` 400 case, verified via curl. Live matching
+  not verified.
 
 ## Cover letter generation
 
-- **Status:** Planned
-- **Dependencies:** AI provider integration
+- **Description:** `POST /api/resumes/:id/cover-letters` generates a
+  cover letter from the resume + a pasted job description (+ optional
+  company name) and saves it — this is the one AI output that's
+  persisted, since it's a deliverable. `GET` lists a resume's saved
+  letters; `DELETE /api/resumes/:id/cover-letters/:letterId` removes one.
+  Shown on `/resumes/:id`.
+- **Status:** Complete (code), untested live — see AI provider integration
+- **Dependencies:** AI provider integration, resume builder
+- **Related files:** `app/api/resumes/[id]/cover-letters/route.ts`,
+  `app/api/resumes/[id]/cover-letters/[letterId]/route.ts`,
+  `components/ResumeAITools.tsx`
+- **Database requirements:** `CoverLetter` model (migration
+  `20260821021013_add_cover_letters`)
+- **Testing status:** Same auth/ownership/validation coverage, verified
+  via curl, including that a second user cannot list or generate letters
+  on another user's resume. Live generation not verified.
 
 ## Application tracker
 

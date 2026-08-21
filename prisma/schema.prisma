@@ -94,8 +94,21 @@ model Resume {
   experiences ResumeExperience[]
   education   ResumeEducation[]
   skills      ResumeSkill[]
+  coverLetters CoverLetter[]
 
   @@index([userId])
+}
+
+model CoverLetter {
+  id             String   @id @default(cuid())
+  resumeId       String
+  resume         Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  companyName    String?
+  jobDescription String
+  content        String
+  createdAt      DateTime @default(now())
+
+  @@index([resumeId])
 }
 
 model ResumeExperience {

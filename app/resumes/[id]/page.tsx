@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { authOptions } from "@/lib/auth";
 import { ResumeEditor } from "@/components/ResumeEditor";
+import { ResumeAITools } from "@/components/ResumeAITools";
 
 export default async function ResumeEditPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -23,6 +24,7 @@ export default async function ResumeEditPage({ params }: { params: Promise<{ id:
       </div>
 
       <ResumeEditor resumeId={id} />
+      <ResumeAITools resumeId={id} />
     </main>
   );
 }

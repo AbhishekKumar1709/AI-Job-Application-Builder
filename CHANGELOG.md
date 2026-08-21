@@ -1,5 +1,38 @@
 # Changelog
 
+## 2026-08-21 (4)
+
+### Added
+- Phase 3 (AI features), all five items: `lib/ai.ts` wraps the Anthropic
+  SDK (`claude-opus-5` default, `ANTHROPIC_MODEL` override) with
+  `askClaudeJSON`/`askClaudeText` helpers; `lib/resumeText.ts` formats a
+  resume into prompt text.
+- `POST /api/resumes/:id/optimize` — resume rewrite suggestions
+- `POST /api/resumes/:id/ats-check` — ATS compatibility score + issues
+- `POST /api/resumes/:id/match` — job description match score + gaps
+- `POST/GET /api/resumes/:id/cover-letters`,
+  `DELETE .../cover-letters/:letterId` — cover letter generation; the
+  only one of the four that's persisted (`CoverLetter` model, migration
+  `20260821021013_add_cover_letters`), since it's a deliverable rather
+  than a disposable analysis
+- All four surfaced on `/resumes/:id` under "AI tools"
+  (`components/ResumeAITools.tsx`)
+- `lib/resumeAccess.ts` (`getOwnedResume`) — extracted the
+  ownership-checked resume-with-nested-items query used by all four new
+  routes, and refactored `GET /api/resumes/:id` to use it too instead of
+  duplicating the query
+
+### Verified
+- Auth (401), ownership including cross-user isolation (404 on another
+  user's resume, for every route including cover-letter list/generate),
+  and input validation (400 on missing job description / empty resume)
+  tested end-to-end via curl for all five routes.
+- Live AI output is **not** verified — no `ANTHROPIC_API_KEY` is set.
+  Confirmed the missing-key failure surfaces as a real 502 (not
+  swallowed or faked), proving each route actually reaches the Claude
+  call rather than stopping short. `npm run build` and `npm run lint`
+  both pass. Test accounts and resumes deleted afterward.
+
 ## 2026-08-21 (3)
 
 ### Added
