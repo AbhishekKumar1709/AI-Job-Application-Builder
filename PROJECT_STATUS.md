@@ -141,8 +141,10 @@ browser session (zero console errors across all screens touched).
 
 ## Known gaps (not yet built)
 
-- Dev/Preview/Production share one Neon database (see `DATABASE.md`) —
-  now protecting real user data, not a placeholder table
+- Local dev is now isolated on its own Neon branch (`development`),
+  verified by data isolation testing — but Preview deployments still
+  share `main` with Production (see `DATABASE.md`); Neon's per-branch
+  Preview integration would close this but isn't set up yet
 - Phase 1 design system (`UI_DESIGN.md`) not filled in beyond the
   landing page
 - `RESEND_API_KEY` isn't set anywhere yet — password reset/email

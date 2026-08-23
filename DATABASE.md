@@ -5,9 +5,16 @@ Connection config lives in [prisma.config.ts](./prisma.config.ts) (Prisma 7
 moved the datasource URL out of `schema.prisma`).
 
 Database: Postgres, hosted on [Neon](https://neon.tech) via Vercel's
-Marketplace integration (resource name `neon-cerulean-bridge`). One
-database is shared by local dev and the production deployment — there is
-no separate local database. Two connection strings are used:
+Marketplace integration (resource name `neon-cerulean-bridge`, project
+`lingering-glitter-80314464`). Two Neon branches exist:
+
+- `main` — production data. Used by Vercel's Production (and currently
+  Preview) environments.
+- `development` — created as a full data+schema copy of `main` at
+  branch-creation time (2026-08-23), no auto-expiry. Used by local dev
+  only (`.env`, gitignored — not committed, not in Vercel).
+
+Two connection strings per branch:
 
 - `DATABASE_URL` — pooled (via PgBouncer), used by the Prisma Client
   adapter at runtime ([lib/prisma.ts](./lib/prisma.ts))
@@ -15,17 +22,25 @@ no separate local database. Two connection strings are used:
   migrations ([prisma.config.ts](./prisma.config.ts)); Prisma Migrate
   doesn't work reliably through a transaction-mode pooler.
 
-Both are auto-populated in Vercel's environment variables (Production,
-Preview, Development) by the Neon integration; for local dev, copy them
-into `.env` (see [.env.example](./.env.example)) or run `vercel env pull`.
+Vercel's Production/Preview environment variables (auto-populated by the
+Neon integration) still point at `main` — only the local `.env` was
+repointed to `development`. Verified isolated: created a test user
+through the local dev server, confirmed it exists when queried directly
+against the `development` branch and does *not* exist when queried
+directly against `main`.
 
-**Known limitation:** Production, Preview, and local Development all point
-at the exact same Neon database/branch right now (verified — the
-connection strings are identical across all three). There's no isolation
-between environments: testing locally or in a preview deploy writes to the
-same data as production. Fine for now as a solo project with only a
-placeholder `User` table, but worth splitting into separate Neon branches
-per environment before there's real user data to protect.
+**Note:** a Neon branch's compute suspends when idle and can take several
+seconds to wake on the first connection after a period of inactivity —
+manifests as a Prisma `ETIMEDOUT` on the very first query after the dev
+server (re)starts or after leaving it idle; the retry immediately after
+succeeds. Not a bug, just cold-start latency.
+
+**Remaining gap:** Preview deployments still share `main` with
+Production — only local dev is isolated so far. Neon's Vercel
+integration supports automatic per-branch databases for Preview
+deployments (a branch created and torn down per PR); not yet configured.
+Worth doing before Preview deploys are used for anything beyond quick
+visual checks.
 
 Keep this file synchronized with the actual schema. Update it in the same
 commit as any `schema.prisma` change.

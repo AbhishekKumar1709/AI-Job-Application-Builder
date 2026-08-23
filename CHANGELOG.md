@@ -1,5 +1,29 @@
 # Changelog
 
+## 2026-08-23 (4)
+
+### Added
+- Split local dev off the shared Neon database: created a `development`
+  branch (full data+schema copy of `main`, no auto-expiry) and
+  repointed local `.env`'s `DATABASE_URL`/`DATABASE_URL_UNPOOLED` at it.
+  Vercel's Production/Preview environment variables are untouched — they
+  still point at `main`, which is correct.
+
+### Verified
+- Confirmed real isolation, not just a config change: signed up a test
+  account through the local dev server, then queried the `development`
+  branch directly (found it) and queried `main` directly (did not find
+  it) using two separate Prisma clients pointed at each branch's
+  connection string. Test user deleted from `development` afterward.
+- Along the way, observed and documented (not a bug, just a real Neon
+  behavior worth knowing): the branch's compute suspends when idle, so
+  the very first query after a period of inactivity can time out
+  (`ETIMEDOUT`) while it wakes up — the immediate retry succeeds.
+
+### Known gap
+- Preview deployments still share `main` with Production — only local
+  dev is isolated so far. See `DATABASE.md`.
+
 ## 2026-08-23 (3)
 
 ### Added
