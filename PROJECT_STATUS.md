@@ -48,10 +48,11 @@ Last updated: 2026-08-23
       wired into signup/login yet
 - [x] Password reset via email (Resend) — forgot/reset password API +
       pages, linked from `/login`; email verification on signup uses the
-      same sender. `RESEND_API_KEY` set and verified live in local dev:
-      both the signup verification email and a forgot-password email sent
-      successfully with no errors (checked the server log directly, not
-      just the generic API response). Free tier, no verified domain, so
+      same sender. `RESEND_API_KEY` set and verified live in both local
+      dev and Vercel production: signup verification and forgot-password
+      emails sent successfully in both environments (production
+      forgot-password call returned 200, not the 502 it returns on a
+      real Resend send failure). Free tier, no verified domain, so
       delivery is currently limited to the Resend account owner's own
       email address — documented in SECURITY.md.
 
@@ -152,9 +153,6 @@ browser session (zero console errors across all screens touched).
   Preview integration would close this but isn't set up yet
 - Phase 1 design system (`UI_DESIGN.md`) not filled in beyond the
   landing page
-- `RESEND_API_KEY` is set and verified in local dev only — not yet added
-  to Vercel production, so password reset/email verification don't work
-  on the live site yet
 - Resend free tier has no verified sending domain, so email delivery is
   restricted to the Resend account owner's own address until a domain is
   verified

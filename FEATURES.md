@@ -92,9 +92,13 @@ Progress / Complete / Needs Testing / Blocked.
   (200). With `RESEND_API_KEY` set, also sent a real forgot-password
   email through the live Resend API to the account owner's address and
   confirmed no error in the server log (Resend would reject an
-  unverified recipient with a visible error). `RESEND_API_KEY` is set in
-  local dev only, not yet in Vercel production. Test account deleted
-  afterward.
+  unverified recipient with a visible error). Repeated the same
+  forgot-password call directly against the live production URL
+  (`ai-job-application-builder.vercel.app`) and got 200, not the 502
+  this route returns on a real Resend send failure — confirms
+  `RESEND_API_KEY` works in production too. `RESEND_API_KEY` is set in
+  both local dev and Vercel production. Test accounts deleted afterward
+  in both environments.
 
 ## Master profile
 
@@ -486,8 +490,9 @@ Progress / Complete / Needs Testing / Blocked.
   when already verified short-circuits with a message instead of
   sending another email. With `RESEND_API_KEY` set, also re-ran signup
   and confirmed the verification email sent via the real Resend API with
-  no error in the server log. `RESEND_API_KEY` is set in local dev only,
-  not yet in Vercel production. Test account deleted afterward.
+  no error in the server log, both locally and against the live
+  production URL. `RESEND_API_KEY` is set in both local dev and Vercel
+  production. Test accounts deleted afterward in both environments.
 
 ## Account lockout
 

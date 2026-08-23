@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-08-23 (6)
+
+### Added
+- `RESEND_API_KEY` added to Vercel production (Production + Preview
+  environments), then redeployed.
+
+### Verified
+- Repeated the signup + forgot-password test directly against the live
+  production URL (`ai-job-application-builder.vercel.app`). The
+  forgot-password call returned 200, not the 502 that route returns on
+  a real Resend send failure, confirming the key works in production.
+  Test account deleted from production afterward via the authenticated
+  account-deletion API.
+
 ## 2026-08-23 (5)
 
 ### Verified
@@ -14,10 +28,8 @@
   deleted afterward.
 
 ### Known gap
-- `RESEND_API_KEY` is set in local dev only, not yet in Vercel
-  production. Resend's free tier has no verified sending domain, so
-  delivery is currently restricted to the account owner's own email
-  address.
+- Resend's free tier has no verified sending domain, so delivery is
+  currently restricted to the account owner's own email address.
 
 ## 2026-08-23 (4)
 
