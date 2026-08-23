@@ -145,8 +145,6 @@ browser session (zero console errors across all screens touched).
 - `docs/ARCHITECTURE.md`, `AI.md`, `FILE_PROCESSING.md`, `UI_DESIGN.md`
   still describe the pre-Phase-2 app; only `docs/SECURITY.md` has been
   brought current so far
-- Landing page roadmap section (`components/Roadmap.tsx`) still shows
-  every feature as "Planned" — stale now that Phases 2–4 are built
 
 ## Notes
 
