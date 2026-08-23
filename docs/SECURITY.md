@@ -59,11 +59,12 @@ Implemented — see Authorization above.
 
 ## API key handling
 
-AI provider (`ANTHROPIC_API_KEY`), email (`RESEND_API_KEY`), and SMS
+AI provider (`GEMINI_API_KEY`), email (`RESEND_API_KEY`), and SMS
 (`MSG91_AUTH_KEY`) keys are read only from environment variables, never
 committed, never sent to the client. See [.env.example](../.env.example).
-Neither `ANTHROPIC_API_KEY` nor `RESEND_API_KEY` is set in production yet
-— see [PROJECT_STATUS.md](../PROJECT_STATUS.md).
+`GEMINI_API_KEY` is set locally and verified live; not yet set in
+production. `RESEND_API_KEY` isn't set anywhere yet — see
+[PROJECT_STATUS.md](../PROJECT_STATUS.md).
 
 ## Privacy
 

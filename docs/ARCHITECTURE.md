@@ -10,9 +10,10 @@ and [PROJECT_STATUS.md](../PROJECT_STATUS.md) for the authoritative,
 continuously-updated status and test evidence per feature — this file
 describes the shape of the system, not feature-by-feature status.
 
-Known blockers: `ANTHROPIC_API_KEY` and `RESEND_API_KEY` aren't set in
-production yet, so AI features and real email delivery are code-complete
-but unverified live. Phone/OTP verification (MSG91) is blocked on DLT
+Known blockers: `GEMINI_API_KEY` is set locally and verified live (see
+[AI.md](./AI.md)) but not yet in Vercel production; `RESEND_API_KEY`
+isn't set anywhere yet, so real email delivery is code-complete but
+unverified live. Phone/OTP verification (MSG91) is blocked on DLT
 registration and not wired into signup/login. Dev/Preview/Production
 still share one Neon database (see [DATABASE.md](../DATABASE.md)).
 
@@ -100,7 +101,7 @@ Shared server-side logic lives in `lib/`:
   parent table)
 - `lib/resumeText.ts` — formats a resume's data into prompt text for
   the AI routes
-- `lib/ai.ts` — Anthropic SDK wrapper; see [AI.md](./AI.md)
+- `lib/ai.ts` — Google Gemini SDK wrapper; see [AI.md](./AI.md)
 - `lib/resumeParse.ts` — PDF/DOCX text extraction + heuristic resume
   parsing; see [FILE_PROCESSING.md](./FILE_PROCESSING.md)
 - `lib/msg91.ts` — MSG91 OTP send/verify (blocked, not wired in)
@@ -186,13 +187,14 @@ flowchart LR
     Browser --> NextApp["Next.js App Router\n(Vercel)"]
     NextApp --> NextAuth["NextAuth (Credentials, JWT)"]
     NextApp --> Prisma["Prisma ORM (pg adapter)"]
-    NextApp --> Anthropic["Anthropic API\n(claude-opus-5)"]
+    NextApp --> Gemini["Google Gemini API\n(gemini-3-flash-preview)"]
     NextApp --> Resend["Resend\n(transactional email)"]
     NextApp --> FileParse["pdf-parse / mammoth\n(in-memory, not persisted)"]
     NextAuth --> Prisma
     Prisma --> Neon[("Postgres (Neon)")]
 ```
 
-`ANTHROPIC_API_KEY` and `RESEND_API_KEY` are not set in production yet
-(see the top of this file) — those two integrations are wired up in code
-but not live for real users until the keys are added.
+`GEMINI_API_KEY` is set and verified live locally but not yet in Vercel
+production; `RESEND_API_KEY` isn't set anywhere yet (see the top of this
+file) — real email delivery is wired up in code but not live for real
+users until that key is added.

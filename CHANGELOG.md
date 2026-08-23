@@ -1,5 +1,48 @@
 # Changelog
 
+## 2026-08-23 (2)
+
+### Changed
+- Switched the AI provider from Anthropic (Claude) to Google Gemini
+  (`@google/genai`, `gemini-3-flash-preview` by default, overridable via
+  `GEMINI_MODEL`). Reason: Anthropic's API has no ongoing free tier
+  (pay-as-you-go only), Gemini's does (Google AI Studio, no credit card
+  required) — the project has no budget for API costs.
+- `lib/ai.ts` rewritten against `ai.models.generateContent` (confirmed
+  via the installed SDK's own `.d.ts` JSDoc examples, not docs
+  scraping, after an initial web-doc lookup turned out to describe a
+  different/newer "Interactions" API surface that doesn't apply here).
+  `askClaudeJSON`/`askClaudeText` renamed to `askAIJSON`/`askAIText` in
+  `lib/ai.ts` and all four call sites, since keeping the old
+  Claude-specific names while calling a different provider would be a
+  misleading label on real code, not just a cosmetic rename.
+- Removed the now-unused `@anthropic-ai/sdk` dependency; added
+  `@google/genai`.
+- `.env.example`: `ANTHROPIC_API_KEY`/`ANTHROPIC_MODEL` replaced with
+  `GEMINI_API_KEY`/`GEMINI_MODEL`.
+- Synced every doc that named the old provider (`FEATURES.md`,
+  `PROJECT_STATUS.md`, `API.md`, `docs/AI.md`, `docs/ARCHITECTURE.md`,
+  `docs/SECURITY.md`) to reflect Gemini.
+
+### Verified
+- One real bug caught during live testing: with a small
+  `maxOutputTokens` (200, in an initial smoke test), the model — a
+  "preview"/reasoning-capable model — spent its entire token budget on
+  internal thinking and returned empty text (`finishReason:
+  MAX_TOKENS`, confirmed via `response.usageMetadata.thoughtsTokenCount`
+  = 191 of 200). The app's actual `maxOutputTokens: 4096` was then
+  explicitly re-tested and confirmed sufficient (`finishReason: STOP`,
+  valid JSON returned) rather than assumed.
+- All four AI features called live end-to-end through the real HTTP API
+  (not just the SDK directly) against a real account with real
+  profile/resume data: optimize, ats-check, match, and cover-letters all
+  returned real 200/201 responses with coherent, relevant, grounded
+  content — including a job-match call that correctly distinguished
+  keywords present vs. absent in the test resume, and a generated cover
+  letter that referenced only facts actually present in the source
+  resume. `GEMINI_API_KEY` set in local `.env`; not yet added to Vercel
+  production. Test account and data deleted afterward.
+
 ## 2026-08-23 (1)
 
 ### Added

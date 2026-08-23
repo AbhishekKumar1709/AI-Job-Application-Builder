@@ -257,61 +257,72 @@ Progress / Complete / Needs Testing / Blocked.
 
 ## AI provider integration
 
-- **Description:** `lib/ai.ts` wraps the Anthropic SDK (`claude-opus-5` by
-  default, overridable via `ANTHROPIC_MODEL`). Two helpers:
-  `askClaudeJSON` (system + user prompt → parsed JSON, throws on
-  non-JSON responses) and `askClaudeText` (→ plain text), both used by
+- **Description:** `lib/ai.ts` wraps the Google Gemini SDK (`@google/genai`,
+  `gemini-3-flash-preview` by default, overridable via `GEMINI_MODEL`).
+  Two helpers: `askAIJSON` (system + user prompt → parsed JSON, throws
+  on non-JSON responses) and `askAIText` (→ plain text), both used by
   the four features below. No custom fallback content is ever
   substituted on API failure — errors surface to the caller as a real
-  error.
-- **Status:** Complete
+  error. Originally built against Anthropic's Claude API; switched to
+  Gemini because Gemini has a genuine ongoing free tier (no credit
+  card) and Anthropic's API doesn't.
+- **Status:** Complete, verified live
 - **Dependencies:** none
 - **Related files:** `lib/ai.ts`, `lib/resumeText.ts` (formats a resume's
   data into prompt text, shared by all four AI routes)
-- **Testing status:** Auth, validation, and error-path behavior verified
-  (see below) — `ANTHROPIC_API_KEY` isn't set, so no request has
-  actually reached Claude. Confirmed the missing-key error surfaces
-  correctly as a 502 rather than being swallowed, proving the code path
-  reaches the real API call.
+- **Testing status:** Called live end-to-end through the real HTTP API
+  (not just the SDK) against a real account, for all four features below
+  — see each feature's testing status and [AI.md](../docs/AI.md) for
+  full detail, including a real bug (empty output under a too-small
+  token budget) caught and fixed during this testing. `GEMINI_API_KEY`
+  is set locally; not yet in Vercel production.
 
 ## AI resume optimization
 
 - **Description:** `POST /api/resumes/:id/optimize` sends the resume's
-  content to Claude and returns concrete rewrite suggestions per
+  content to Gemini and returns concrete rewrite suggestions per
   section. Stateless — not persisted, recomputed each time. Surfaced on
   `/resumes/:id` under "AI tools".
-- **Status:** Complete (code), untested live — see AI provider integration
+- **Status:** Complete, verified live
 - **Dependencies:** AI provider integration, resume builder
 - **Related files:** `app/api/resumes/[id]/optimize/route.ts`,
   `components/ResumeAITools.tsx`
 - **Testing status:** 401 (unauthenticated), 404 (nonexistent/unowned
   resume, including cross-user isolation), 400 (empty resume) all
-  verified via curl. Live suggestion quality not verified — no API key.
+  verified via curl. Live call against a real resume returned a real
+  200 with six coherent, specific suggestions referencing the actual
+  resume content (e.g. flagging "Worked on APIs" as vague, suggesting
+  quantifiable metrics).
 
 ## ATS compatibility analysis
 
-- **Description:** `POST /api/resumes/:id/ats-check` asks Claude to
+- **Description:** `POST /api/resumes/:id/ats-check` asks Gemini to
   score the resume's ATS-friendliness (0-100) and list issues/strengths.
   Stateless, shown on `/resumes/:id`.
-- **Status:** Complete (code), untested live — see AI provider integration
+- **Status:** Complete, verified live
 - **Dependencies:** AI provider integration, resume builder
 - **Related files:** `app/api/resumes/[id]/ats-check/route.ts`,
   `components/ResumeAITools.tsx`
 - **Testing status:** Same auth/ownership/validation coverage as resume
-  optimization, verified via curl. Live scoring not verified.
+  optimization, verified via curl. Live call returned a real 200 with a
+  plausible score (48/100 for a deliberately thin test resume) and
+  specific, accurate issues (missing metrics, missing locations) and
+  strengths (consistent date format).
 
 ## Job description matching
 
 - **Description:** `POST /api/resumes/:id/match` compares the resume
   against a pasted job description and returns a match score, matched/
   missing keywords, and suggestions. Stateless, shown on `/resumes/:id`.
-- **Status:** Complete (code), untested live — see AI provider integration
+- **Status:** Complete, verified live
 - **Dependencies:** AI provider integration, resume builder
 - **Related files:** `app/api/resumes/[id]/match/route.ts`,
   `components/ResumeAITools.tsx`
 - **Testing status:** Same auth/ownership/validation coverage, plus a
-  missing-`jobDescription` 400 case, verified via curl. Live matching
-  not verified.
+  missing-`jobDescription` 400 case, verified via curl. Live call
+  against a real job description correctly identified matched keywords
+  ("Go", "distributed systems") vs. missing ones ("Kubernetes",
+  "PostgreSQL") that genuinely weren't in the test resume.
 
 ## Cover letter generation
 
@@ -321,7 +332,7 @@ Progress / Complete / Needs Testing / Blocked.
   persisted, since it's a deliverable. `GET` lists a resume's saved
   letters; `DELETE /api/resumes/:id/cover-letters/:letterId` removes one.
   Shown on `/resumes/:id`.
-- **Status:** Complete (code), untested live — see AI provider integration
+- **Status:** Complete, verified live
 - **Dependencies:** AI provider integration, resume builder
 - **Related files:** `app/api/resumes/[id]/cover-letters/route.ts`,
   `app/api/resumes/[id]/cover-letters/[letterId]/route.ts`,
@@ -330,7 +341,10 @@ Progress / Complete / Needs Testing / Blocked.
   `20260821021013_add_cover_letters`)
 - **Testing status:** Same auth/ownership/validation coverage, verified
   via curl, including that a second user cannot list or generate letters
-  on another user's resume. Live generation not verified.
+  on another user's resume. Live call returned a real 201 with a
+  coherent 3-paragraph letter grounded only in facts present in the
+  source resume (correct company, correct dates, no invented skills or
+  employers), correctly persisted and retrievable via `GET` afterward.
 
 ## Application tracker
 
@@ -403,8 +417,9 @@ Progress / Complete / Needs Testing / Blocked.
   between invocations — an in-memory counter would silently reset per
   request in production. Applied to:
   - The four AI routes (`optimize`, `ats-check`, `match`:
-    15/hour/user/route; `cover-letters`: 10/hour/user) — the routes with
-    real per-call dollar cost once `ANTHROPIC_API_KEY` is live
+    15/hour/user/route; `cover-letters`: 10/hour/user) — worth keeping
+    even on Gemini's free tier, since that tier has its own request
+    limits a runaway client could otherwise exhaust
   - `POST /api/auth/signup` — 5/hour per IP
   - `POST /api/auth/forgot-password` — 3/hour per email (checked before
     the account-existence lookup, so it can't be used to probe which
@@ -423,7 +438,7 @@ Progress / Complete / Needs Testing / Blocked.
   summary), skill names, and application fields. `jobDescription` on
   `match` and `cover-letters` gets its own explicit 10,000-character cap
   (`MAX_JOB_DESCRIPTION_LENGTH` in `lib/ai.ts`) since it was previously
-  completely unbounded before being forwarded into a Claude prompt.
+  completely unbounded before being forwarded into a prompt.
 - **Status:** Complete
 - **Dependencies:** none
 - **Related files:** `lib/rateLimit.ts`, `lib/textLimits.ts`,
@@ -571,7 +586,8 @@ Progress / Complete / Needs Testing / Blocked.
 - **Related files:** `app/api/resumes/[id]/cover-letters/[letterId]/route.ts`,
   `components/ResumeAITools.tsx`
 - **Testing status:** Tested via curl against a manually-seeded cover
-  letter (generation itself needs a live `ANTHROPIC_API_KEY`): empty
-  content rejected (400), valid edit saved and returned updated
-  `content`; confirmed visually in the browser that the edited text
-  displays correctly afterward.
+  letter (written before live AI generation was verified — see Cover
+  letter generation above, which now works live): empty content rejected
+  (400), valid edit saved and returned updated `content`; confirmed
+  visually in the browser that the edited text displays correctly
+  afterward.

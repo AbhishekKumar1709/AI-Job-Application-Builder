@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { getOwnedResume } from "@/lib/resumeAccess";
 import { formatResumeForPrompt } from "@/lib/resumeText";
-import { askClaudeJSON } from "@/lib/ai";
+import { askAIJSON } from "@/lib/ai";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 
 type Suggestion = { section: string; issue: string; suggestion: string };
@@ -42,7 +42,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   }
 
   try {
-    const suggestions = await askClaudeJSON<Suggestion[]>(SYSTEM_PROMPT, resumeText);
+    const suggestions = await askAIJSON<Suggestion[]>(SYSTEM_PROMPT, resumeText);
     return NextResponse.json({ suggestions });
   } catch (err) {
     console.error("Resume optimization failed:", err);

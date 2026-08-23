@@ -52,8 +52,9 @@ Last updated: 2026-08-21
 
 ## Phase 3 — AI features
 
-- [x] AI provider integration — `lib/ai.ts` wraps the Anthropic SDK
-      (`claude-opus-5`, overridable via `ANTHROPIC_MODEL`)
+- [x] AI provider integration — `lib/ai.ts` wraps the Google Gemini SDK
+      (`gemini-3-flash-preview`, overridable via `GEMINI_MODEL`); switched
+      from Anthropic to Gemini for its genuine free tier (no credit card)
 - [x] Resume optimization suggestions — `POST /api/resumes/:id/optimize`
 - [x] ATS compatibility analysis — `POST /api/resumes/:id/ats-check`
 - [x] Job description matching — `POST /api/resumes/:id/match`
@@ -62,9 +63,11 @@ Last updated: 2026-08-21
       persisted
 
   All five: auth, ownership (incl. cross-user isolation), and validation
-  tested end-to-end via curl. Live AI output itself is untested —
-  `ANTHROPIC_API_KEY` isn't set; the missing-key error was confirmed to
-  surface correctly (502) rather than being swallowed.
+  tested end-to-end via curl, **and** live AI output verified — real
+  calls through the actual HTTP API returned real, coherent, grounded
+  responses for all four features (see AI.md and FEATURES.md for
+  specifics). `GEMINI_API_KEY` is set locally; not yet in Vercel
+  production.
 
 ## Phase 4 — Application tracking
 
@@ -141,10 +144,10 @@ browser session (zero console errors across all screens touched).
   now protecting real user data, not a placeholder table
 - Phase 1 design system (`UI_DESIGN.md`) not filled in beyond the
   landing page
-- Live AI output untested — no `ANTHROPIC_API_KEY` set yet
-- `docs/ARCHITECTURE.md`, `AI.md`, `FILE_PROCESSING.md`, `UI_DESIGN.md`
-  still describe the pre-Phase-2 app; only `docs/SECURITY.md` has been
-  brought current so far
+- `GEMINI_API_KEY` is set and verified live locally, but not yet added
+  to Vercel production
+- `RESEND_API_KEY` isn't set anywhere yet — password reset/email
+  verification untested live
 
 ## Notes
 

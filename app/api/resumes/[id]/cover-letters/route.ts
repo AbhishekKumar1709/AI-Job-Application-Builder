@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getOwnedResume } from "@/lib/resumeAccess";
 import { formatResumeForPrompt } from "@/lib/resumeText";
-import { askClaudeText, MAX_JOB_DESCRIPTION_LENGTH } from "@/lib/ai";
+import { askAIText, MAX_JOB_DESCRIPTION_LENGTH } from "@/lib/ai";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 
 const MAX_COMPANY_NAME_LENGTH = 200;
@@ -81,7 +81,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const prompt = `Resume:\n${resumeText}\n\n${companyName ? `Company: ${companyName}\n\n` : ""}Job description:\n${jobDescription}`;
 
   try {
-    const content = await askClaudeText(SYSTEM_PROMPT, prompt);
+    const content = await askAIText(SYSTEM_PROMPT, prompt);
     const coverLetter = await prisma.coverLetter.create({
       data: { resumeId: id, jobDescription, companyName, content },
     });

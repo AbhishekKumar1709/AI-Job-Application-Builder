@@ -1,23 +1,15 @@
-import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenAI } from "@google/genai";
 
-const MODEL = process.env.ANTHROPIC_MODEL || "claude-opus-5";
+const MODEL = process.env.GEMINI_MODEL || "gemini-3-flash-preview";
 
 export const MAX_JOB_DESCRIPTION_LENGTH = 10000;
 
 function client() {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    throw new Error("ANTHROPIC_API_KEY is not set");
+    throw new Error("GEMINI_API_KEY is not set");
   }
-  return new Anthropic({ apiKey });
-}
-
-function firstTextBlock(content: Anthropic.ContentBlock[]): string {
-  const block = content.find((b) => b.type === "text");
-  if (!block || block.type !== "text") {
-    throw new Error("Claude returned no text content");
-  }
-  return block.text;
+  return new GoogleGenAI({ apiKey });
 }
 
 function extractJson(text: string): string {
@@ -25,31 +17,42 @@ function extractJson(text: string): string {
   return (fenced ? fenced[1] : text).trim();
 }
 
-export async function askClaudeJSON<T>(system: string, userPrompt: string): Promise<T> {
-  const response = await client().messages.create({
+export async function askAIJSON<T>(system: string, userPrompt: string): Promise<T> {
+  const response = await client().models.generateContent({
     model: MODEL,
-    max_tokens: 4096,
-    system,
-    messages: [{ role: "user", content: userPrompt }],
+    contents: userPrompt,
+    config: {
+      systemInstruction: system,
+      maxOutputTokens: 4096,
+    },
   });
 
-  const text = firstTextBlock(response.content);
+  const text = response.text;
+  if (!text) {
+    throw new Error("AI returned no text content");
+  }
   const jsonText = extractJson(text);
 
   try {
     return JSON.parse(jsonText) as T;
   } catch {
-    throw new Error("Claude's response wasn't valid JSON");
+    throw new Error("AI's response wasn't valid JSON");
   }
 }
 
-export async function askClaudeText(system: string, userPrompt: string): Promise<string> {
-  const response = await client().messages.create({
+export async function askAIText(system: string, userPrompt: string): Promise<string> {
+  const response = await client().models.generateContent({
     model: MODEL,
-    max_tokens: 4096,
-    system,
-    messages: [{ role: "user", content: userPrompt }],
+    contents: userPrompt,
+    config: {
+      systemInstruction: system,
+      maxOutputTokens: 4096,
+    },
   });
 
-  return firstTextBlock(response.content).trim();
+  const text = response.text;
+  if (!text) {
+    throw new Error("AI returned no text content");
+  }
+  return text.trim();
 }

@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { getOwnedResume } from "@/lib/resumeAccess";
 import { formatResumeForPrompt } from "@/lib/resumeText";
-import { askClaudeJSON, MAX_JOB_DESCRIPTION_LENGTH } from "@/lib/ai";
+import { askAIJSON, MAX_JOB_DESCRIPTION_LENGTH } from "@/lib/ai";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 
 type MatchResult = {
@@ -58,7 +58,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const prompt = `Resume:\n${resumeText}\n\nJob description:\n${jobDescription}`;
 
   try {
-    const result = await askClaudeJSON<MatchResult>(SYSTEM_PROMPT, prompt);
+    const result = await askAIJSON<MatchResult>(SYSTEM_PROMPT, prompt);
     return NextResponse.json({ result });
   } catch (err) {
     console.error("Job match failed:", err);

@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { getOwnedResume } from "@/lib/resumeAccess";
 import { formatResumeForPrompt } from "@/lib/resumeText";
-import { askClaudeJSON } from "@/lib/ai";
+import { askAIJSON } from "@/lib/ai";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 
 type AtsResult = { score: number; issues: string[]; strengths: string[] };
@@ -41,7 +41,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   }
 
   try {
-    const result = await askClaudeJSON<AtsResult>(SYSTEM_PROMPT, resumeText);
+    const result = await askAIJSON<AtsResult>(SYSTEM_PROMPT, resumeText);
     return NextResponse.json({ result });
   } catch (err) {
     console.error("ATS check failed:", err);

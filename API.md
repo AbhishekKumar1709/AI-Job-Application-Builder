@@ -293,7 +293,7 @@ for the full route list.
   - `400` — resume has no content yet
   - `401` — not authenticated
   - `404` — resume not found or not owned by the caller
-  - `502` — the AI provider call failed (e.g. `ANTHROPIC_API_KEY` not set, or Claude's response wasn't valid JSON)
+  - `502` — the AI provider call failed (e.g. `GEMINI_API_KEY` not set, or the model's response wasn't valid JSON)
 
 ## POST /api/resumes/:id/ats-check
 
