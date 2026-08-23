@@ -79,7 +79,7 @@ export function ExperienceSection({
 
     const data = await res.json();
     if (isNew) {
-      setExperiences([data.experience, ...experiences]);
+      setExperiences([...experiences, data.experience]);
     } else {
       setExperiences(experiences.map((e) => (e.id === editingId ? data.experience : e)));
     }
@@ -97,6 +97,38 @@ export function ExperienceSection({
     setExperiences(experiences.filter((e) => e.id !== id));
   }
 
+  async function handleMove(index: number, direction: -1 | 1) {
+    const otherIndex = index + direction;
+    if (otherIndex < 0 || otherIndex >= experiences.length) return;
+
+    const current = experiences[index];
+    const other = experiences[otherIndex];
+    setError(null);
+
+    const [resA, resB] = await Promise.all([
+      fetch(`${apiBase}/experience/${current.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sortOrder: other.sortOrder }),
+      }),
+      fetch(`${apiBase}/experience/${other.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sortOrder: current.sortOrder }),
+      }),
+    ]);
+
+    if (!resA.ok || !resB.ok) {
+      setError("Failed to reorder experience.");
+      return;
+    }
+
+    const reordered = [...experiences];
+    reordered[index] = { ...other, sortOrder: current.sortOrder };
+    reordered[otherIndex] = { ...current, sortOrder: other.sortOrder };
+    setExperiences(reordered);
+  }
+
   return (
     <section>
       <div className="flex items-center justify-between">
@@ -109,7 +141,7 @@ export function ExperienceSection({
       </div>
 
       <div className="mt-4 flex flex-col gap-4">
-        {experiences.map((exp) =>
+        {experiences.map((exp, index) =>
           editingId === exp.id ? (
             <ExperienceForm key={exp.id} form={form} setForm={setForm} onSubmit={handleSubmit} onCancel={() => setEditingId(null)} saving={saving} />
           ) : (
@@ -125,6 +157,22 @@ export function ExperienceSection({
                   </p>
                 </div>
                 <div className="flex gap-2">
+                  <button
+                    onClick={() => handleMove(index, -1)}
+                    disabled={index === 0}
+                    aria-label="Move up"
+                    className={secondaryButtonClass}
+                  >
+                    ↑
+                  </button>
+                  <button
+                    onClick={() => handleMove(index, 1)}
+                    disabled={index === experiences.length - 1}
+                    aria-label="Move down"
+                    className={secondaryButtonClass}
+                  >
+                    ↓
+                  </button>
                   <button onClick={() => startEdit(exp)} className={secondaryButtonClass}>
                     Edit
                   </button>

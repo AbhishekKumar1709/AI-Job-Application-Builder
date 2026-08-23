@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { getOwnedResume } from "@/lib/resumeAccess";
 import { SHORT_TEXT_MAX, LONG_TEXT_MAX, lengthError } from "@/lib/textLimits";
 
+const TEMPLATES = ["classic", "compact"];
+
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
@@ -47,6 +49,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (typeof body?.phone === "string") data.phone = body.phone.trim() || null;
   if (typeof body?.location === "string") data.location = body.location.trim() || null;
   if (typeof body?.summary === "string") data.summary = body.summary.trim() || null;
+  if (typeof body?.template === "string") {
+    if (!TEMPLATES.includes(body.template)) {
+      return NextResponse.json({ error: "Invalid template." }, { status: 400 });
+    }
+    data.template = body.template;
+  }
 
   const error =
     (typeof data.title === "string" && lengthError(data.title, SHORT_TEXT_MAX, "Title")) ||

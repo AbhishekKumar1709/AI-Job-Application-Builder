@@ -1,5 +1,51 @@
 # Changelog
 
+## 2026-08-23 (1)
+
+### Added
+Ten gaps closed from a full-codebase audit, in one batch:
+
+- Email verification on signup (`EmailVerificationToken`, `/verify-email`,
+  resend from `/account`, dev-mode console fallback like password reset)
+- Account lockout beyond the login rate limit (`User.failedLoginAttempts`
+  / `lockedUntil` — 10 cumulative failures locks for 1 hour, independent
+  of the 15-min rate-limit window)
+- Account settings page (`/account`): change name, change password,
+  export all account data as JSON, permanently delete account
+  (password-confirmed, cascades via existing FK relations)
+- Cover letters are now editable after generation
+  (`PATCH .../cover-letters/:letterId`)
+- Cover letters can be linked to a tracked Application
+  (`Application.coverLetterId`, ownership-checked through the resume)
+- A second resume template ("compact"), selectable per resume
+  (`Resume.template`)
+- Client-side search on the resume list (title) and applications list
+  (company/role + status filter)
+- Dashboard summary stats (resume/application/interviewing/offer counts)
+- Manual reordering of experience/education entries, both master
+  profile and per-resume, via up/down buttons backed by a new
+  `sortOrder` column
+- (Rate limiting and input length caps were already closed in the
+  previous commit)
+
+Schema: one migration (`big_feature_batch`) added
+`EmailVerificationToken`, `User.emailVerified`/`failedLoginAttempts`/
+`lockedUntil`, `CoverLetter.updatedAt`, `Application.coverLetterId`,
+`Resume.template`, and `sortOrder` on `Experience`/`Education`/
+`ResumeExperience`/`ResumeEducation`.
+
+### Verified
+- Every item tested via curl (auth, validation, cross-user ownership
+  isolation) plus a combined Playwright browser session covering
+  dashboard stats, profile/resume reordering (including a real button
+  click), both resume templates (including switching via the UI),
+  applications search actually filtering, account settings, and the
+  full account-deletion flow (wrong password rejected, correct password
+  deletes + signs out + redirects, confirmed gone from the database).
+  Zero console/page errors across every screen touched. `npm run build`
+  and `npm run lint` both pass. All test accounts and their data deleted
+  afterward, along with the scratch Playwright installs.
+
 ## 2026-08-21 (7)
 
 ### Added

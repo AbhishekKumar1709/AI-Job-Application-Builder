@@ -35,6 +35,7 @@ export async function POST(request: Request) {
   const notes = typeof body?.notes === "string" ? body.notes.trim() || null : null;
   const appliedAt = typeof body?.appliedAt === "string" && body.appliedAt ? new Date(body.appliedAt) : null;
   const resumeId = typeof body?.resumeId === "string" && body.resumeId ? body.resumeId : null;
+  const coverLetterId = typeof body?.coverLetterId === "string" && body.coverLetterId ? body.coverLetterId : null;
 
   if (!company || !role) {
     return NextResponse.json({ error: "Company and role are required." }, { status: 400 });
@@ -60,8 +61,17 @@ export async function POST(request: Request) {
     }
   }
 
+  if (coverLetterId) {
+    const coverLetter = await prisma.coverLetter.findFirst({
+      where: { id: coverLetterId, resume: { userId: session.user.id } },
+    });
+    if (!coverLetter) {
+      return NextResponse.json({ error: "Selected cover letter not found." }, { status: 400 });
+    }
+  }
+
   const application = await prisma.application.create({
-    data: { userId: session.user.id, company, role, status, jobUrl, notes, appliedAt, resumeId },
+    data: { userId: session.user.id, company, role, status, jobUrl, notes, appliedAt, resumeId, coverLetterId },
     include: { resume: { select: { id: true, title: true } } },
   });
 

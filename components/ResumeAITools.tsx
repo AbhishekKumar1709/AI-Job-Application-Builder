@@ -133,6 +133,9 @@ function MatchAndCoverLetterSection({ apiBase }: { apiBase: string }) {
   const [generating, setGenerating] = useState(false);
   const [letterError, setLetterError] = useState<string | null>(null);
   const [coverLetters, setCoverLetters] = useState<CoverLetter[]>([]);
+  const [editingLetterId, setEditingLetterId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
 
   useEffect(() => {
     fetch(`${apiBase}/cover-letters`)
@@ -185,6 +188,30 @@ function MatchAndCoverLetterSection({ apiBase }: { apiBase: string }) {
     if (res.ok) {
       setCoverLetters(coverLetters.filter((l) => l.id !== letterId));
     }
+  }
+
+  function startEditLetter(letter: CoverLetter) {
+    setEditContent(letter.content);
+    setEditingLetterId(letter.id);
+  }
+
+  async function handleSaveLetterEdit(letterId: string) {
+    setSavingEdit(true);
+    setLetterError(null);
+    const res = await fetch(`${apiBase}/cover-letters/${letterId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content: editContent }),
+    });
+    setSavingEdit(false);
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setLetterError(data.error ?? "Failed to save edit.");
+      return;
+    }
+    const data = await res.json();
+    setCoverLetters(coverLetters.map((l) => (l.id === letterId ? data.coverLetter : l)));
+    setEditingLetterId(null);
   }
 
   return (
@@ -247,20 +274,44 @@ function MatchAndCoverLetterSection({ apiBase }: { apiBase: string }) {
       {coverLetters.length > 0 && (
         <div className="mt-6 flex flex-col gap-4">
           <p className="text-sm font-medium">Generated cover letters</p>
-          {coverLetters.map((letter) => (
-            <div key={letter.id} className="rounded-lg border border-border p-4">
-              <div className="flex items-start justify-between">
-                <p className="text-sm text-muted">
-                  {letter.companyName ? `${letter.companyName} · ` : ""}
-                  {new Date(letter.createdAt).toLocaleString()}
-                </p>
-                <button onClick={() => handleDeleteLetter(letter.id)} className={secondaryButtonClass}>
-                  Delete
-                </button>
+          {coverLetters.map((letter) =>
+            editingLetterId === letter.id ? (
+              <div key={letter.id} className="rounded-lg border border-border p-4">
+                <textarea
+                  rows={8}
+                  value={editContent}
+                  onChange={(e) => setEditContent(e.target.value)}
+                  className={inputClass}
+                />
+                <div className="mt-2 flex gap-2">
+                  <button onClick={() => handleSaveLetterEdit(letter.id)} disabled={savingEdit} className={buttonClass}>
+                    {savingEdit ? "Saving…" : "Save"}
+                  </button>
+                  <button onClick={() => setEditingLetterId(null)} className={secondaryButtonClass}>
+                    Cancel
+                  </button>
+                </div>
               </div>
-              <p className="mt-2 whitespace-pre-wrap text-sm">{letter.content}</p>
-            </div>
-          ))}
+            ) : (
+              <div key={letter.id} className="rounded-lg border border-border p-4">
+                <div className="flex items-start justify-between">
+                  <p className="text-sm text-muted">
+                    {letter.companyName ? `${letter.companyName} · ` : ""}
+                    {new Date(letter.createdAt).toLocaleString()}
+                  </p>
+                  <div className="flex gap-2">
+                    <button onClick={() => startEditLetter(letter)} className={secondaryButtonClass}>
+                      Edit
+                    </button>
+                    <button onClick={() => handleDeleteLetter(letter.id)} className={secondaryButtonClass}>
+                      Delete
+                    </button>
+                  </div>
+                </div>
+                <p className="mt-2 whitespace-pre-wrap text-sm">{letter.content}</p>
+              </div>
+            ),
+          )}
         </div>
       )}
     </section>

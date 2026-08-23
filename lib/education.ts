@@ -48,6 +48,7 @@ export function parseEducationUpdate(body: unknown): { data: Record<string, unkn
   if (typeof b.degree === "string") data.degree = b.degree.trim() || null;
   if (typeof b.fieldOfStudy === "string") data.fieldOfStudy = b.fieldOfStudy.trim() || null;
   if (typeof b.description === "string") data.description = b.description.trim() || null;
+  if (typeof b.sortOrder === "number") data.sortOrder = b.sortOrder;
 
   if ("startDate" in b) {
     if (b.startDate === null || b.startDate === "") {

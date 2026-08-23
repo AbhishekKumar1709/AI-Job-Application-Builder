@@ -22,8 +22,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: parsed.error }, { status: 400 });
   }
 
+  const sortOrder = await prisma.resumeExperience.count({ where: { resumeId: id } });
+
   const experience = await prisma.resumeExperience.create({
-    data: { resumeId: id, ...parsed.data },
+    data: { resumeId: id, sortOrder, ...parsed.data },
   });
 
   return NextResponse.json({ experience }, { status: 201 });

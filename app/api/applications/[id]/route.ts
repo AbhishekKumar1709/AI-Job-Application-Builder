@@ -57,6 +57,20 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     }
   }
 
+  if ("coverLetterId" in (body ?? {})) {
+    if (body.coverLetterId === null || body.coverLetterId === "") {
+      data.coverLetterId = null;
+    } else if (typeof body.coverLetterId === "string") {
+      const coverLetter = await prisma.coverLetter.findFirst({
+        where: { id: body.coverLetterId, resume: { userId: session.user.id } },
+      });
+      if (!coverLetter) {
+        return NextResponse.json({ error: "Selected cover letter not found." }, { status: 400 });
+      }
+      data.coverLetterId = body.coverLetterId;
+    }
+  }
+
   if (data.company === "" || data.role === "") {
     return NextResponse.json({ error: "Company and role are required." }, { status: 400 });
   }

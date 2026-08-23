@@ -12,6 +12,7 @@ type BasicInfo = {
   phone: string | null;
   location: string | null;
   summary: string | null;
+  template: string;
 };
 
 export function ResumeEditor({ resumeId }: { resumeId: string }) {
@@ -21,7 +22,7 @@ export function ResumeEditor({ resumeId }: { resumeId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
 
-  const [basic, setBasic] = useState<BasicInfo>({ title: "", headline: "", phone: "", location: "", summary: "" });
+  const [basic, setBasic] = useState<BasicInfo>({ title: "", headline: "", phone: "", location: "", summary: "", template: "classic" });
   const [savingBasic, setSavingBasic] = useState(false);
 
   const [experiences, setExperiences] = useState<Experience[]>([]);
@@ -46,6 +47,7 @@ export function ResumeEditor({ resumeId }: { resumeId: string }) {
           phone: resume.phone ?? "",
           location: resume.location ?? "",
           summary: resume.summary ?? "",
+          template: resume.template ?? "classic",
         });
         setExperiences(resume.experiences ?? []);
         setEducation(resume.education ?? []);
@@ -135,6 +137,17 @@ export function ResumeEditor({ resumeId }: { resumeId: string }) {
               onChange={(e) => setBasic({ ...basic, summary: e.target.value })}
               className={inputClass}
             />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            Template
+            <select
+              value={basic.template}
+              onChange={(e) => setBasic({ ...basic, template: e.target.value })}
+              className={inputClass}
+            >
+              <option value="classic">Classic — spaced, traditional layout</option>
+              <option value="compact">Compact — dense, two-column header</option>
+            </select>
           </label>
           <button type="submit" disabled={savingBasic} className={`${buttonClass} self-start`}>
             {savingBasic ? "Saving…" : "Save"}

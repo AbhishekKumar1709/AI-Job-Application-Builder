@@ -58,6 +58,7 @@ export async function POST(request: Request) {
               current: e.current,
               startDate: e.startDate,
               endDate: e.endDate,
+              sortOrder: e.sortOrder,
             })),
           }
         : undefined,
@@ -70,6 +71,7 @@ export async function POST(request: Request) {
               description: e.description,
               startDate: e.startDate,
               endDate: e.endDate,
+              sortOrder: e.sortOrder,
             })),
           }
         : undefined,
@@ -80,8 +82,8 @@ export async function POST(request: Request) {
         : undefined,
     },
     include: {
-      experiences: { orderBy: { startDate: "desc" } },
-      education: { orderBy: { startDate: "desc" } },
+      experiences: { orderBy: { sortOrder: "asc" } },
+      education: { orderBy: { sortOrder: "asc" } },
       skills: { orderBy: { name: "asc" } },
     },
   });

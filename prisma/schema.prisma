@@ -11,15 +11,31 @@ datasource db {
 }
 
 model User {
-  id                 String              @id @default(cuid())
-  name               String?
-  email              String              @unique
-  passwordHash       String
-  createdAt          DateTime            @default(now())
+  id                  String                    @id @default(cuid())
+  name                String?
+  email               String                    @unique
+  passwordHash        String
+  emailVerified       DateTime?
+  failedLoginAttempts Int                       @default(0)
+  lockedUntil         DateTime?
+  createdAt           DateTime                  @default(now())
   passwordResetTokens PasswordResetToken[]
-  profile            Profile?
-  resumes            Resume[]
-  applications       Application[]
+  emailVerificationTokens EmailVerificationToken[]
+  profile             Profile?
+  resumes             Resume[]
+  applications        Application[]
+}
+
+model EmailVerificationToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
 }
 
 model Profile {
@@ -48,6 +64,7 @@ model Experience {
   endDate     DateTime?
   current     Boolean   @default(false)
   description String?
+  sortOrder   Int       @default(0)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -64,6 +81,7 @@ model Education {
   startDate    DateTime?
   endDate      DateTime?
   description  String?
+  sortOrder    Int       @default(0)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
@@ -90,6 +108,7 @@ model Resume {
   phone       String?
   location    String?
   summary     String?
+  template    String             @default("classic")
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
   experiences ResumeExperience[]
@@ -102,13 +121,15 @@ model Resume {
 }
 
 model CoverLetter {
-  id             String   @id @default(cuid())
+  id             String        @id @default(cuid())
   resumeId       String
-  resume         Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  resume         Resume        @relation(fields: [resumeId], references: [id], onDelete: Cascade)
   companyName    String?
   jobDescription String
   content        String
-  createdAt      DateTime @default(now())
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  applications   Application[]
 
   @@index([resumeId])
 }
@@ -124,6 +145,7 @@ model ResumeExperience {
   endDate     DateTime?
   current     Boolean   @default(false)
   description String?
+  sortOrder   Int       @default(0)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -140,6 +162,7 @@ model ResumeEducation {
   startDate    DateTime?
   endDate      DateTime?
   description  String?
+  sortOrder    Int       @default(0)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
@@ -179,22 +202,25 @@ enum ApplicationStatus {
 }
 
 model Application {
-  id        String            @id @default(cuid())
-  userId    String
-  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  resumeId  String?
-  resume    Resume?           @relation(fields: [resumeId], references: [id], onDelete: SetNull)
-  company   String
-  role      String
-  status    ApplicationStatus @default(APPLIED)
-  jobUrl    String?
-  notes     String?
-  appliedAt DateTime?
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
+  id            String            @id @default(cuid())
+  userId        String
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resumeId      String?
+  resume        Resume?           @relation(fields: [resumeId], references: [id], onDelete: SetNull)
+  coverLetterId String?
+  coverLetter   CoverLetter?      @relation(fields: [coverLetterId], references: [id], onDelete: SetNull)
+  company       String
+  role          String
+  status        ApplicationStatus @default(APPLIED)
+  jobUrl        String?
+  notes         String?
+  appliedAt     DateTime?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
 
   @@index([userId])
   @@index([resumeId])
+  @@index([coverLetterId])
 }
 
 model RateLimitBucket {

@@ -183,15 +183,16 @@ Progress / Complete / Needs Testing / Blocked.
 
 - **Description:** `/resumes/:id/preview` renders a resume's data
   (name/email from the account, headline, contact line, summary,
-  experience, education, skills) as a single clean formatted document.
-  One template for now, not a gallery of selectable designs — this
-  covers "view/export a resume as a real document"; multiple visual
-  templates would be a separate follow-up if wanted. Doubles as the PDF
-  export surface (see below).
+  experience, education, skills) as a formatted document. Two templates
+  — "classic" (spaced, traditional) and "compact" (dense, two-column
+  header, accent-colored section headers) — selectable per resume via a
+  dropdown on the resume editor (`Resume.template`, `PATCH
+  /api/resumes/:id`). Doubles as the PDF export surface (see below).
 - **Status:** Complete
 - **Dependencies:** Resume builder
 - **Related files:** `app/resumes/[id]/preview/page.tsx`,
-  `components/ResumePreview.tsx`, print rules in `app/globals.css`
+  `components/ResumePreview.tsx` (both templates), `components/ResumeEditor.tsx`
+  (template selector), print rules in `app/globals.css`
 - **Testing status:** Verified visually with Playwright against the real
   dev server (screenshot of the rendered page, and again under
   `emulateMedia({ media: 'print' })`) using a fully populated test
@@ -199,8 +200,11 @@ Progress / Complete / Needs Testing / Blocked.
   and that the editor chrome (back link, download button) is hidden in
   print output via the `.no-print` / `.resume-doc` print rules. Also
   verified the page redirects unauthenticated visitors to `/login` and
-  shows a not-found state for a nonexistent/unowned resume id. Test
-  account deleted afterward.
+  shows a not-found state for a nonexistent/unowned resume id. Both
+  templates confirmed visually distinct, including switching between
+  them through the real UI (select + Save) and re-rendering the
+  preview. Invalid template value rejected (400). Test account deleted
+  afterward.
 
 ## Resume upload / parsing (PDF, DOCX)
 
@@ -341,7 +345,11 @@ Progress / Complete / Needs Testing / Blocked.
   above), pointing an application at a specific resume row *is* its
   resume version; no separate snapshot layer was needed on top. If the
   linked resume is later deleted, the application is preserved with the
-  link cleared (`onDelete: SetNull`), never deleted along with it.
+  link cleared (`onDelete: SetNull`), never deleted along with it. An
+  application can also optionally link to one of that resume's
+  generated cover letters (`Application.coverLetterId`), picked from a
+  dropdown scoped to the selected resume. The list has client-side
+  search (company/role) and a status filter dropdown.
 - **Status:** Complete
 - **Dependencies:** Auth, resume builder
 - **Related files:** `app/api/applications/route.ts`,
@@ -350,19 +358,22 @@ Progress / Complete / Needs Testing / Blocked.
 - **API requirements:** `GET/POST /api/applications`,
   `PATCH/DELETE /api/applications/:id`. See `API.md`.
 - **Database requirements:** `Application` model + `ApplicationStatus`
-  enum (migration `20260821023404_add_applications`)
+  enum (migration `20260821023404_add_applications`);
+  `Application.coverLetterId` added in migration `big_feature_batch`
 - **Testing status:** Tested at both layers. API via curl with two real
   accounts: auth (401), validation (400 on missing company/role, and on
-  a `resumeId` that doesn't belong to the caller), full CRUD, status
-  transitions, unlinking a resume, cross-user ownership isolation (404
-  on another user's application; can't link to another user's resume),
-  and confirmed deleting a linked resume preserves the application with
-  `resumeId` set to `null` rather than deleting it. UI via a scratch
-  Playwright browser session against the real dev server: screenshotted
-  the list, the add form being filled, the new entry appearing after
-  save, an edit changing its status, and its removal after delete — zero
-  console/page errors throughout. Test accounts and data deleted
-  afterward.
+  a `resumeId`/`coverLetterId` that doesn't belong to the caller), full
+  CRUD, status transitions, unlinking a resume, cross-user ownership
+  isolation (404 on another user's application; can't link to another
+  user's resume or cover letter), and confirmed deleting a linked resume
+  preserves the application with `resumeId` set to `null` rather than
+  deleting it. UI via Playwright browser sessions against the real dev
+  server: screenshotted the list, the add form being filled (including
+  the resume + cover-letter link), the new entry appearing after save,
+  an edit changing its status, its removal after delete, and the search
+  filter actually narrowing results (typed a non-matching string,
+  confirmed the "no matches" empty state) — zero console/page errors
+  throughout. Test accounts and data deleted afterward.
 
 ## PDF export
 
@@ -430,3 +441,137 @@ Progress / Complete / Needs Testing / Blocked.
   replaced — fixed to show the actual message when it's the rate-limit
   one, verified visually via Playwright screenshot. Test accounts and
   all `RateLimitBucket` rows created during testing deleted afterward.
+
+## Email verification
+
+- **Description:** New accounts get a verification email on signup
+  (dev-mode console fallback like password reset, same `lib/email.ts`
+  send helper). `/verify-email?token=...` confirms it and sets
+  `User.emailVerified`. `/account` shows a banner with a resend button
+  while unverified (rate-limited to 3/hour).
+- **Status:** Complete (code), untested live — needs `RESEND_API_KEY`,
+  same as password reset
+- **Dependencies:** none
+- **Related files:** `lib/emailVerification.ts`, `lib/email.ts`
+  (`sendVerificationEmail`), `app/api/auth/verify-email/route.ts`,
+  `app/api/auth/resend-verification/route.ts`, `app/verify-email/page.tsx`
+- **Database requirements:** `EmailVerificationToken` model,
+  `User.emailVerified` (migration `big_feature_batch`)
+- **Testing status:** Tested end-to-end via the dev-mode console
+  fallback: signup issues a token and logs the link; bogus token
+  rejected (400); valid token verifies (200) and sets `emailVerified`;
+  reusing the same token rejected (400, single-use enforced); resending
+  when already verified short-circuits with a message instead of
+  sending another email. Test account deleted afterward.
+
+## Account lockout
+
+- **Description:** Independent of and outlasting the per-window login
+  rate limit: `User.failedLoginAttempts` increments on each wrong
+  password, and 10 cumulative failures sets `User.lockedUntil` 1 hour
+  out (resetting the counter). A correct password resets both fields.
+  The rate limit (10 requests/15 min) and the lockout (10 failures,
+  1-hour lock) happen to share a threshold, so in practice the rate
+  limit's 429 is usually what a client sees first within one window —
+  the lockout's value is that it persists after that window rolls over,
+  which the rate limit alone doesn't.
+- **Status:** Complete
+- **Dependencies:** none
+- **Related files:** `lib/auth.ts` (`authorize` callback),
+  `app/login/page.tsx` (surfaces the lockout message)
+- **Database requirements:** `User.failedLoginAttempts`,
+  `User.lockedUntil` (migration `big_feature_batch`)
+- **Testing status:** Drove 10 failed logins against a fresh account via
+  curl, then confirmed directly in the database that `lockedUntil` was
+  set ~1 hour out and `failedLoginAttempts` reset to 0. Confirmed a
+  same-window follow-up request (correct password) was still rejected
+  (masked by the rate limiter in that specific window, as expected —
+  see above). Test account deleted afterward.
+
+## Account settings, deletion, and data export
+
+- **Description:** `/account` (linked from `/dashboard`): view email and
+  verification status, change display name, change password
+  (current-password verified, new password ≥ 8 chars), export all
+  account data as a JSON download, and permanently delete the account
+  (password-confirmed, then signs out and redirects home). Deletion
+  relies on the existing `onDelete: Cascade` relations from `User` to
+  every owned table (profile, resumes and their nested data, cover
+  letters, applications) — one `prisma.user.delete()` call, no manual
+  cleanup code.
+- **Status:** Complete
+- **Dependencies:** Auth
+- **Related files:** `app/account/page.tsx`,
+  `components/AccountSettings.tsx`, `app/api/account/route.ts`
+  (GET/PATCH/DELETE), `app/api/account/password/route.ts`,
+  `app/api/account/export/route.ts`
+- **API requirements:** `GET/PATCH/DELETE /api/account`,
+  `PATCH /api/account/password`, `GET /api/account/export`. See `API.md`.
+- **Testing status:** Tested via curl: name change, wrong-current-password
+  rejected (401), weak new password rejected (400), correct password
+  change confirmed by logging in with the new password afterward (old
+  password then rejected), export returns real nested data. Deletion
+  tested through a real browser session end to end: wrong password
+  rejected with the form still visible ("Incorrect password."), correct
+  password deletes the account, signs out, and redirects to `/`;
+  confirmed the user row no longer exists in the database afterward.
+
+## Dashboard summary stats
+
+- **Description:** `/dashboard` shows resume count, application count,
+  interviewing count, and offer count, computed with direct Prisma
+  queries in the server component (no extra API route needed since the
+  page already has the session server-side).
+- **Status:** Complete
+- **Dependencies:** Resume builder, application tracker
+- **Related files:** `app/dashboard/page.tsx`
+- **Testing status:** Verified visually via Playwright against a test
+  account with a known 1 resume / 1 application (status Applied) —
+  counts matched exactly (1 / 1 / 0 / 0).
+
+## Search and manual reordering
+
+- **Description:** Two independent additions to existing list UIs:
+  (1) client-side search — resume list filters by title, applications
+  list filters by company/role text plus a status dropdown; (2) manual
+  reordering of experience/education entries (both master profile and
+  per-resume) via up/down buttons, backed by a `sortOrder` column.
+  New entries append at the end (`sortOrder = count of existing
+  siblings`); reordering swaps `sortOrder` between the two affected
+  entries via two `PATCH` calls. Ordering changed from `startDate desc`
+  to `sortOrder asc` everywhere these lists are read, and resume
+  creation now carries the profile's `sortOrder` into the new resume's
+  snapshot so the order is preserved.
+- **Status:** Complete
+- **Dependencies:** Master profile, resume builder
+- **Related files:** `components/ResumeList.tsx`,
+  `components/ApplicationsList.tsx`, `components/profile/ExperienceSection.tsx`,
+  `components/profile/EducationSection.tsx`, `lib/experience.ts`,
+  `lib/education.ts` (accept `sortOrder` on update), the four
+  experience/education creation routes (compute `sortOrder` on create)
+- **Database requirements:** `sortOrder` on `Experience`, `Education`,
+  `ResumeExperience`, `ResumeEducation` (migration `big_feature_batch`)
+- **Testing status:** Search: typed a non-matching string and confirmed
+  the empty state, typed a matching one and confirmed the entry
+  reappeared (Playwright). Reordering: verified the default insertion
+  order via curl, swapped two entries' `sortOrder` via curl and
+  confirmed the new order, then clicked the actual up/down buttons in a
+  real browser and confirmed the swap took effect — and confirmed a
+  newly-created resume inherited the profile's already-reordered
+  sequence.
+
+## Cover letter editing
+
+- **Description:** `PATCH /api/resumes/:id/cover-letters/:letterId`
+  lets a saved cover letter's text be edited in place (max 8,000
+  chars), rather than only delete-and-regenerate. Inline edit UI on
+  `/resumes/:id`.
+- **Status:** Complete
+- **Dependencies:** Cover letter generation
+- **Related files:** `app/api/resumes/[id]/cover-letters/[letterId]/route.ts`,
+  `components/ResumeAITools.tsx`
+- **Testing status:** Tested via curl against a manually-seeded cover
+  letter (generation itself needs a live `ANTHROPIC_API_KEY`): empty
+  content rejected (400), valid edit saved and returned updated
+  `content`; confirmed visually in the browser that the edited text
+  displays correctly afterward.

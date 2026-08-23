@@ -76,7 +76,7 @@ export function EducationSection({
 
     const data = await res.json();
     if (isNew) {
-      setEducation([data.education, ...education]);
+      setEducation([...education, data.education]);
     } else {
       setEducation(education.map((e) => (e.id === editingId ? data.education : e)));
     }
@@ -94,6 +94,38 @@ export function EducationSection({
     setEducation(education.filter((e) => e.id !== id));
   }
 
+  async function handleMove(index: number, direction: -1 | 1) {
+    const otherIndex = index + direction;
+    if (otherIndex < 0 || otherIndex >= education.length) return;
+
+    const current = education[index];
+    const other = education[otherIndex];
+    setError(null);
+
+    const [resA, resB] = await Promise.all([
+      fetch(`${apiBase}/education/${current.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sortOrder: other.sortOrder }),
+      }),
+      fetch(`${apiBase}/education/${other.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sortOrder: current.sortOrder }),
+      }),
+    ]);
+
+    if (!resA.ok || !resB.ok) {
+      setError("Failed to reorder education.");
+      return;
+    }
+
+    const reordered = [...education];
+    reordered[index] = { ...other, sortOrder: current.sortOrder };
+    reordered[otherIndex] = { ...current, sortOrder: other.sortOrder };
+    setEducation(reordered);
+  }
+
   return (
     <section>
       <div className="flex items-center justify-between">
@@ -106,7 +138,7 @@ export function EducationSection({
       </div>
 
       <div className="mt-4 flex flex-col gap-4">
-        {education.map((edu) =>
+        {education.map((edu, index) =>
           editingId === edu.id ? (
             <EducationForm key={edu.id} form={form} setForm={setForm} onSubmit={handleSubmit} onCancel={() => setEditingId(null)} saving={saving} />
           ) : (
@@ -123,6 +155,22 @@ export function EducationSection({
                   </p>
                 </div>
                 <div className="flex gap-2">
+                  <button
+                    onClick={() => handleMove(index, -1)}
+                    disabled={index === 0}
+                    aria-label="Move up"
+                    className={secondaryButtonClass}
+                  >
+                    ↑
+                  </button>
+                  <button
+                    onClick={() => handleMove(index, 1)}
+                    disabled={index === education.length - 1}
+                    aria-label="Move down"
+                    className={secondaryButtonClass}
+                  >
+                    ↓
+                  </button>
                   <button onClick={() => startEdit(edu)} className={secondaryButtonClass}>
                     Edit
                   </button>

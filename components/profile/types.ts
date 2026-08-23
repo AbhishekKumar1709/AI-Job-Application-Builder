@@ -7,6 +7,7 @@ export type Experience = {
   endDate: string | null;
   current: boolean;
   description: string | null;
+  sortOrder: number;
 };
 
 export type Education = {
@@ -17,6 +18,7 @@ export type Education = {
   startDate: string | null;
   endDate: string | null;
   description: string | null;
+  sortOrder: number;
 };
 
 export type Skill = { id: string; name: string };

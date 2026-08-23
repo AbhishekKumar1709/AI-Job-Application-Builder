@@ -329,6 +329,17 @@ for the full route list.
   - `400` — missing job description, or resume has no content
   - `401` / `404` / `502` — same as `optimize` above
 
+## PATCH /api/resumes/:id/cover-letters/:letterId
+
+- **Purpose:** Edit a saved cover letter's text.
+- **Authentication:** Required (session cookie).
+- **Request format:** JSON — `{ "content": string }` (max 8,000 characters)
+- **Response format:** `200` → `{ "coverLetter": CoverLetter }`
+- **Error responses:**
+  - `400` — empty or over-length content
+  - `401` — not authenticated
+  - `404` — letter not found or not owned by the caller
+
 ## DELETE /api/resumes/:id/cover-letters/:letterId
 
 - **Purpose:** Delete a saved cover letter. Ownership checked on both the resume and the letter.
@@ -372,6 +383,61 @@ for the full route list.
 - **Authentication:** Required (session cookie).
 - **Response format:** `200` → `{ "ok": true }`
 - **Error responses:** `401` / `404` (not found or not owned)
+
+## POST /api/auth/verify-email
+
+- **Purpose:** Consume an email-verification token from the emailed link.
+- **Authentication:** None required (token in body is the credential).
+- **Request format:** JSON — `{ "token": string }`
+- **Response format:** `200` → `{ "message": string }`
+- **Error responses:** `400` — missing/invalid/expired/already-used token
+
+## POST /api/auth/resend-verification
+
+- **Purpose:** Resend the verification email for the signed-in user.
+- **Authentication:** Required (session cookie).
+- **Response format:** `200` → `{ "message": string }`
+- **Error responses:**
+  - `401` — not authenticated
+  - `404` — account not found
+  - `429` — rate limited (3/hour)
+  - `502` — email send failed
+
+## GET /api/account
+
+- **Purpose:** Fetch the signed-in user's account info (name, email, verification status, created date).
+- **Authentication:** Required (session cookie).
+- **Response format:** `200` → `{ "user": { id, name, email, emailVerified, createdAt } }`
+
+## PATCH /api/account
+
+- **Purpose:** Update the signed-in user's display name.
+- **Authentication:** Required (session cookie).
+- **Request format:** JSON — `{ "name"?: string }`
+- **Response format:** `200` → `{ "user": { id, name, email } }`
+- **Error responses:** `400` — name too long
+
+## DELETE /api/account
+
+- **Purpose:** Permanently delete the signed-in user's account and everything owned by it.
+- **Authentication:** Required (session cookie); password required in body.
+- **Request format:** JSON — `{ "password": string }`
+- **Response format:** `200` → `{ "ok": true }`
+- **Error responses:** `400` — missing password; `401` — incorrect password
+
+## PATCH /api/account/password
+
+- **Purpose:** Change the signed-in user's password.
+- **Authentication:** Required (session cookie).
+- **Request format:** JSON — `{ "currentPassword": string, "newPassword": string }`
+- **Response format:** `200` → `{ "message": string }`
+- **Error responses:** `400` — new password under 8 characters; `401` — current password incorrect
+
+## GET /api/account/export
+
+- **Purpose:** Download all data owned by the signed-in user (profile, resumes, applications) as JSON.
+- **Authentication:** Required (session cookie).
+- **Response format:** `200` → JSON file, `Content-Disposition: attachment`
 
 No other API routes exist yet.
 

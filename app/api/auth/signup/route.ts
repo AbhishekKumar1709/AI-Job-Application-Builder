@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, getClientIp, rateLimitResponse } from "@/lib/rateLimit";
+import { issueVerificationEmail } from "@/lib/emailVerification";
 
 export async function POST(request: Request) {
   const rateLimit = await checkRateLimit(`auth:signup:${getClientIp(request)}`, 5, 3600);
@@ -43,6 +44,12 @@ export async function POST(request: Request) {
     },
     select: { id: true, email: true },
   });
+
+  try {
+    await issueVerificationEmail(user.id, user.email);
+  } catch (err) {
+    console.error("Failed to send verification email:", err);
+  }
 
   return NextResponse.json({ user }, { status: 201 });
 }

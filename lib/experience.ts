@@ -51,6 +51,7 @@ export function parseExperienceUpdate(body: unknown): { data: Record<string, unk
   if (typeof b.location === "string") data.location = b.location.trim() || null;
   if (typeof b.description === "string") data.description = b.description.trim() || null;
   if (typeof b.current === "boolean") data.current = b.current;
+  if (typeof b.sortOrder === "number") data.sortOrder = b.sortOrder;
 
   if (typeof b.startDate === "string") {
     const startDate = new Date(b.startDate);

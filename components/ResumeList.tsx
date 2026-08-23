@@ -12,6 +12,7 @@ export function ResumeList() {
   const [resumes, setResumes] = useState<ResumeSummary[]>([]);
   const [title, setTitle] = useState("");
   const [creating, setCreating] = useState(false);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     fetch("/api/resumes")
@@ -61,6 +62,8 @@ export function ResumeList() {
     return <p className="mt-8 text-sm text-muted">Loading…</p>;
   }
 
+  const filtered = resumes.filter((r) => r.title.toLowerCase().includes(search.trim().toLowerCase()));
+
   return (
     <div className="mt-8 flex flex-col gap-6">
       {error && <p className="text-sm text-red-500">{error}</p>}
@@ -78,8 +81,18 @@ export function ResumeList() {
         </button>
       </form>
 
+      {resumes.length > 0 && (
+        <input
+          type="text"
+          placeholder="Search resumes…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className={inputClass}
+        />
+      )}
+
       <div className="flex flex-col gap-3">
-        {resumes.map((resume) => (
+        {filtered.map((resume) => (
           <div key={resume.id} className="flex items-center justify-between rounded-lg border border-border p-4">
             <Link href={`/resumes/${resume.id}`} className="font-medium text-accent hover:underline">
               {resume.title}
@@ -90,6 +103,9 @@ export function ResumeList() {
           </div>
         ))}
         {resumes.length === 0 && <p className="text-sm text-muted">No resumes yet.</p>}
+        {resumes.length > 0 && filtered.length === 0 && (
+          <p className="text-sm text-muted">No resumes match &quot;{search}&quot;.</p>
+        )}
       </div>
     </div>
   );

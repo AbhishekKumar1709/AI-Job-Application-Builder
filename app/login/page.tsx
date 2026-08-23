@@ -26,11 +26,9 @@ export default function LoginPage() {
     setLoading(false);
 
     if (result?.error) {
-      setError(
-        result.error.startsWith("Too many login attempts")
-          ? result.error
-          : "Incorrect email or password.",
-      );
+      const isSpecificError =
+        result.error.startsWith("Too many login attempts") || result.error.startsWith("Account locked");
+      setError(isSpecificError ? result.error : "Incorrect email or password.");
       return;
     }
 

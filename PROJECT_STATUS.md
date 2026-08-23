@@ -90,10 +90,53 @@ Last updated: 2026-08-21
       hardcoding "Incorrect email or password" over every `signIn()`
       error, silently hiding the new rate-limit message from the user
 
+## Post-audit gap closure
+
+Ten gaps identified in a full-codebase review were closed in one batch:
+
+- [x] Email verification on signup — `EmailVerificationToken` model,
+      `/verify-email`, resend from `/account`; dev-mode console fallback
+      like password reset. Tested: bogus token (400), valid token (200),
+      reuse rejected (400), resend-when-verified short-circuits.
+- [x] Account deletion — `DELETE /api/account`, password-confirmed;
+      cascades to all owned data via existing FK cascades. Tested via a
+      real browser session: wrong password rejected, correct password
+      deletes the account, signs out, and redirects to `/`; confirmed
+      gone from the database afterward.
+- [x] Data export — `GET /api/account/export`, JSON download of profile
+      + resumes + applications.
+- [x] Account lockout beyond the login rate limit — `failedLoginAttempts`
+      / `lockedUntil` on `User`; 10 cumulative failures locks for 1 hour,
+      independent of and outlasting the 15-minute rate-limit window.
+      Tested by driving 10 failed logins and confirming `lockedUntil` was
+      set in the database.
+- [x] Account settings page — `/account`: change name, change password
+      (current-password verified), export, delete.
+- [x] Cover letters are now editable after generation —
+      `PATCH .../cover-letters/:letterId`.
+- [x] Cover letters can be linked to a tracked Application —
+      `Application.coverLetterId`, ownership-checked through the resume
+      chain; confirmed a second user cannot link to another user's letter.
+- [x] A second resume template ("compact" — dense, two-column header),
+      selectable per resume; both templates verified visually distinct
+      via Playwright, including switching between them through the real
+      UI.
+- [x] Search/filter on resumes (title) and applications (company/role
+      text + status dropdown), client-side.
+- [x] Dashboard summary stats (resume count, application count,
+      interviewing, offers) computed directly in the server component.
+- [x] Manual reordering of experience/education (both profile and
+      resume) via up/down buttons — `sortOrder` column, swap-based
+      reorder; new entries append at `sortOrder = count of siblings`,
+      and the order carries over correctly when a resume snapshots the
+      profile. Verified via curl (swap) and a real button click in the
+      browser.
+
+All ten: lint and build clean, tested via curl plus a combined Playwright
+browser session (zero console errors across all screens touched).
+
 ## Known gaps (not yet built)
 
-- No email verification on signup, account deletion/data export, or
-  account lockout beyond the login rate limit
 - Dev/Preview/Production share one Neon database (see `DATABASE.md`) —
   now protecting real user data, not a placeholder table
 - Phase 1 design system (`UI_DESIGN.md`) not filled in beyond the
@@ -102,6 +145,8 @@ Last updated: 2026-08-21
 - `docs/ARCHITECTURE.md`, `AI.md`, `FILE_PROCESSING.md`, `UI_DESIGN.md`
   still describe the pre-Phase-2 app; only `docs/SECURITY.md` has been
   brought current so far
+- Landing page roadmap section (`components/Roadmap.tsx`) still shows
+  every feature as "Planned" — stale now that Phases 2–4 are built
 
 ## Notes
 

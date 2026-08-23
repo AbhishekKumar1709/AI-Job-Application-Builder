@@ -4,6 +4,9 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/rateLimit";
 
+const LOCKOUT_THRESHOLD = 10;
+const LOCKOUT_DURATION_MS = 60 * 60 * 1000; // 1 hour
+
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
@@ -37,13 +40,37 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
+        if (user.lockedUntil && user.lockedUntil.getTime() > Date.now()) {
+          const minutesLeft = Math.ceil((user.lockedUntil.getTime() - Date.now()) / 60000);
+          throw new Error(`Account locked due to repeated failed attempts. Try again in ${minutesLeft} minute(s).`);
+        }
+
         const isValid = await bcrypt.compare(
           credentials.password,
           user.passwordHash,
         );
 
         if (!isValid) {
+          const attempts = user.failedLoginAttempts + 1;
+          if (attempts >= LOCKOUT_THRESHOLD) {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { failedLoginAttempts: 0, lockedUntil: new Date(Date.now() + LOCKOUT_DURATION_MS) },
+            });
+          } else {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { failedLoginAttempts: attempts },
+            });
+          }
           return null;
+        }
+
+        if (user.failedLoginAttempts > 0 || user.lockedUntil) {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { failedLoginAttempts: 0, lockedUntil: null },
+          });
         }
 
         return { id: user.id, email: user.email, name: user.name };

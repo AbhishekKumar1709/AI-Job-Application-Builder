@@ -16,6 +16,7 @@ const STATUS_LABEL: Record<Status, string> = {
 };
 
 type ResumeOption = { id: string; title: string };
+type CoverLetterOption = { id: string; companyName: string | null; createdAt: string };
 
 type Application = {
   id: string;
@@ -27,6 +28,7 @@ type Application = {
   appliedAt: string | null;
   resumeId: string | null;
   resume: ResumeOption | null;
+  coverLetterId: string | null;
 };
 
 type FormState = {
@@ -37,6 +39,7 @@ type FormState = {
   notes: string;
   appliedAt: string;
   resumeId: string;
+  coverLetterId: string;
 };
 
 const emptyForm: FormState = {
@@ -47,6 +50,7 @@ const emptyForm: FormState = {
   notes: "",
   appliedAt: "",
   resumeId: "",
+  coverLetterId: "",
 };
 
 function toDateInput(value: string | null): string {
@@ -58,10 +62,14 @@ export function ApplicationsList() {
   const [error, setError] = useState<string | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
   const [resumeOptions, setResumeOptions] = useState<ResumeOption[]>([]);
+  const [coverLetterOptions, setCoverLetterOptions] = useState<CoverLetterOption[]>([]);
 
   const [editingId, setEditingId] = useState<string | "new" | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
+
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<Status | "">("");
 
   useEffect(() => {
     Promise.all([
@@ -75,6 +83,18 @@ export function ApplicationsList() {
       .catch(() => setError("Failed to load applications."))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (editingId === null || !form.resumeId) {
+      return;
+    }
+    fetch(`/api/resumes/${form.resumeId}/cover-letters`)
+      .then((res) => res.json())
+      .then((data) => setCoverLetterOptions(data.coverLetters ?? []))
+      .catch(() => setCoverLetterOptions([]));
+  }, [editingId, form.resumeId]);
+
+  const visibleCoverLetterOptions = form.resumeId ? coverLetterOptions : [];
 
   function startAdd() {
     setForm(emptyForm);
@@ -90,6 +110,7 @@ export function ApplicationsList() {
       notes: app.notes ?? "",
       appliedAt: toDateInput(app.appliedAt),
       resumeId: app.resumeId ?? "",
+      coverLetterId: app.coverLetterId ?? "",
     });
     setEditingId(app.id);
   }
@@ -107,6 +128,7 @@ export function ApplicationsList() {
       notes: form.notes,
       appliedAt: form.appliedAt || null,
       resumeId: form.resumeId || null,
+      coverLetterId: form.coverLetterId || null,
     };
 
     const isNew = editingId === "new";
@@ -148,6 +170,15 @@ export function ApplicationsList() {
     return <p className="mt-8 text-sm text-muted">Loading…</p>;
   }
 
+  const filtered = applications.filter((a) => {
+    const matchesSearch =
+      !search.trim() ||
+      a.company.toLowerCase().includes(search.trim().toLowerCase()) ||
+      a.role.toLowerCase().includes(search.trim().toLowerCase());
+    const matchesStatus = !statusFilter || a.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
   return (
     <div className="mt-8 flex flex-col gap-6">
       {error && <p className="text-sm text-red-500">{error}</p>}
@@ -163,14 +194,39 @@ export function ApplicationsList() {
           form={form}
           setForm={setForm}
           resumeOptions={resumeOptions}
+          coverLetterOptions={visibleCoverLetterOptions}
           onSubmit={handleSubmit}
           onCancel={() => setEditingId(null)}
           saving={saving}
         />
       )}
 
+      {applications.length > 0 && (
+        <div className="flex gap-2">
+          <input
+            type="text"
+            placeholder="Search company or role…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className={`${inputClass} flex-1`}
+          />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as Status | "")}
+            className={inputClass}
+          >
+            <option value="">All statuses</option>
+            {STATUSES.map((s) => (
+              <option key={s} value={s}>
+                {STATUS_LABEL[s]}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       <div className="flex flex-col gap-3">
-        {applications.map((app) => (
+        {filtered.map((app) => (
           <div key={app.id} className="rounded-lg border border-border p-4">
             <div className="flex items-start justify-between">
               <div>
@@ -181,6 +237,7 @@ export function ApplicationsList() {
                   {STATUS_LABEL[app.status]}
                   {app.appliedAt ? ` · Applied ${toDateInput(app.appliedAt)}` : ""}
                   {app.resume ? ` · Resume: ${app.resume.title}` : ""}
+                  {app.coverLetterId ? " · Cover letter attached" : ""}
                 </p>
                 {app.jobUrl && (
                   <a href={app.jobUrl} target="_blank" rel="noreferrer" className="mt-1 block text-xs text-accent hover:underline">
@@ -203,6 +260,9 @@ export function ApplicationsList() {
         {applications.length === 0 && editingId === null && (
           <p className="text-sm text-muted">No applications tracked yet.</p>
         )}
+        {applications.length > 0 && filtered.length === 0 && (
+          <p className="text-sm text-muted">No applications match your filters.</p>
+        )}
       </div>
     </div>
   );
@@ -212,6 +272,7 @@ function ApplicationForm({
   form,
   setForm,
   resumeOptions,
+  coverLetterOptions,
   onSubmit,
   onCancel,
   saving,
@@ -219,6 +280,7 @@ function ApplicationForm({
   form: FormState;
   setForm: (value: FormState) => void;
   resumeOptions: ResumeOption[];
+  coverLetterOptions: CoverLetterOption[];
   onSubmit: (event: FormEvent) => void;
   onCancel: () => void;
   saving: boolean;
@@ -272,7 +334,7 @@ function ApplicationForm({
         Resume used
         <select
           value={form.resumeId}
-          onChange={(e) => setForm({ ...form, resumeId: e.target.value })}
+          onChange={(e) => setForm({ ...form, resumeId: e.target.value, coverLetterId: "" })}
           className={inputClass}
         >
           <option value="">None</option>
@@ -283,6 +345,29 @@ function ApplicationForm({
           ))}
         </select>
       </label>
+      {form.resumeId && (
+        <label className="flex flex-col gap-1 text-xs text-muted">
+          Cover letter
+          <select
+            value={form.coverLetterId}
+            onChange={(e) => setForm({ ...form, coverLetterId: e.target.value })}
+            className={inputClass}
+          >
+            <option value="">None</option>
+            {coverLetterOptions.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.companyName ? `${c.companyName} — ` : ""}
+                {new Date(c.createdAt).toLocaleDateString()}
+              </option>
+            ))}
+          </select>
+          {coverLetterOptions.length === 0 && (
+            <span className="text-xs text-muted">
+              No cover letters generated for this resume yet.
+            </span>
+          )}
+        </label>
+      )}
       <input
         type="url"
         placeholder="Job posting URL (optional)"

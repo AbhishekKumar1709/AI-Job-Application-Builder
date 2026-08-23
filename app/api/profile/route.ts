@@ -14,8 +14,8 @@ export async function GET() {
   const profile = await prisma.profile.findUnique({
     where: { userId: session.user.id },
     include: {
-      experiences: { orderBy: { startDate: "desc" } },
-      education: { orderBy: { startDate: "desc" } },
+      experiences: { orderBy: { sortOrder: "asc" } },
+      education: { orderBy: { sortOrder: "asc" } },
       skills: { orderBy: { name: "asc" } },
     },
   });

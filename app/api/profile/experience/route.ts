@@ -18,9 +18,10 @@ export async function POST(request: Request) {
   }
 
   const profile = await getOrCreateProfile(session.user.id);
+  const sortOrder = await prisma.experience.count({ where: { profileId: profile.id } });
 
   const experience = await prisma.experience.create({
-    data: { profileId: profile.id, ...parsed.data },
+    data: { profileId: profile.id, sortOrder, ...parsed.data },
   });
 
   return NextResponse.json({ experience }, { status: 201 });
