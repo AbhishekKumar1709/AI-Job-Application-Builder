@@ -1,5 +1,26 @@
 # Changelog
 
+## 2026-08-24 (1)
+
+### Added
+- `HeroLaptop` — replaced the flat hero mockup card with a real 3D CSS
+  laptop (screen + hinge + keyboard base, plain divs with
+  `rotateX`/`rotateY`/`preserve-3d`, no images or 3D library) that
+  continuously spins 360°, matching the "auto rotating laptop" element
+  from the reference image the user pointed out was missing. Same
+  honest skeleton-bar screen content as before — no invented numbers.
+  Respects `prefers-reduced-motion`.
+
+### Verified
+- Iteratively checked the 3D geometry via Playwright: froze the
+  rotation at 0/30/90/120/180/270° and screenshotted each — first
+  attempt had the screen/base pivots backwards (base only, screen
+  invisible), fixed the `transform-origin` and rotation direction on
+  both parts, re-verified all angles read as a correct laptop shape.
+  Confirmed the animation genuinely runs (two screenshots ~2s apart
+  differ) and checked dark mode. Lint, `tsc --noEmit`, and a full
+  production build all clean.
+
 ## 2026-08-23 (10)
 
 ### Added

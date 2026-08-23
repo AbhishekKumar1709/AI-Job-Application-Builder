@@ -79,10 +79,20 @@ Landing page:
 - `SiteHeader` — top nav; logo links to `/`, plus Features/GitHub/Log
   in/Sign up
 - `Hero` — status badge, headline (with a gradient accent on the last
-  line), subheadline, two CTAs, an illustrative product-mockup card
-  (skeleton bars only — no invented numbers or stats), and a row of 5
-  feature icons (inline SVGs, single-color using the existing `accent`
-  token — no new color hues were introduced)
+  line), subheadline, two CTAs, and a row of 5 feature icons (inline
+  SVGs, single-color using the existing `accent` token — no new color
+  hues were introduced)
+- `HeroLaptop` — a real 3D CSS laptop (screen + hinge + keyboard base,
+  built from plain positioned divs with `rotateX`/`rotateY` and
+  `preserve-3d`, no image assets or 3D library) that continuously spins
+  a full 360° (`@keyframes hero-laptop-spin` in `globals.css`, 18s
+  linear loop). The screen shows the same skeleton-bar mockup content
+  as before (no invented numbers). Respects
+  `prefers-reduced-motion: reduce` (animation disabled). Verified at
+  multiple fixed rotation angles via Playwright (0/30/90/120/180/270°)
+  to confirm the geometry reads correctly all the way around, plus a
+  live-animation check (two screenshots ~2s apart differ, confirming it
+  actually runs) and a dark-mode check.
 - `Roadmap` — grid of feature cards, each with a "Live" badge (every
   item is live now; the type only allows that one status)
 - `SiteFooter` — bottom bar

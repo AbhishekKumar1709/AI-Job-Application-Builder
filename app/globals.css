@@ -40,6 +40,38 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+@keyframes hero-laptop-spin {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
+}
+
+.hero-laptop-scene {
+  perspective: 1400px;
+}
+
+.hero-laptop-rotator {
+  transform-style: preserve-3d;
+  animation: hero-laptop-spin 18s linear infinite;
+}
+
+.hero-laptop-part {
+  transform-style: preserve-3d;
+}
+
+.hero-laptop-face {
+  backface-visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-laptop-rotator {
+    animation: none;
+  }
+}
+
 @media print {
   .no-print {
     display: none !important;

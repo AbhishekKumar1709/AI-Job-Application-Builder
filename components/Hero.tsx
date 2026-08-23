@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HeroLaptop } from "./HeroLaptop";
 
 const features = [
   {
@@ -87,39 +88,7 @@ export function Hero() {
           </div>
         </div>
 
-        <div
-          aria-hidden="true"
-          className="mx-auto w-full max-w-md rounded-xl border border-border bg-surface p-4 shadow-sm"
-        >
-          <div className="flex items-center gap-1.5 border-b border-border pb-3">
-            <span className="h-2.5 w-2.5 rounded-full bg-border" />
-            <span className="h-2.5 w-2.5 rounded-full bg-border" />
-            <span className="h-2.5 w-2.5 rounded-full bg-border" />
-            <span className="ml-3 text-xs text-muted">Resume builder</span>
-          </div>
-          <div className="mt-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-border" />
-            <div className="flex-1 space-y-1.5">
-              <div className="h-2.5 w-2/5 rounded bg-border" />
-              <div className="h-2 w-1/3 rounded bg-border/70" />
-            </div>
-          </div>
-          <div className="mt-5 space-y-2">
-            <div className="h-2 w-1/4 rounded bg-accent/40" />
-            <div className="h-2 w-full rounded bg-border/70" />
-            <div className="h-2 w-5/6 rounded bg-border/70" />
-          </div>
-          <div className="mt-4 space-y-2">
-            <div className="h-2 w-1/4 rounded bg-accent/40" />
-            <div className="h-2 w-full rounded bg-border/70" />
-            <div className="h-2 w-2/3 rounded bg-border/70" />
-          </div>
-          <div className="mt-5 flex gap-2">
-            <span className="h-5 w-14 rounded-full bg-accent/15" />
-            <span className="h-5 w-16 rounded-full bg-accent/15" />
-            <span className="h-5 w-12 rounded-full bg-accent/15" />
-          </div>
-        </div>
+        <HeroLaptop />
       </div>
 
       <div className="mt-14 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 border-t border-border pt-8 text-sm text-muted">
