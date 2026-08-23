@@ -79,7 +79,8 @@ Landing page (unchanged since first built):
 - `SiteHeader` — top nav with logo text + links
 - `Hero` — headline, subheadline, two CTAs, a status badge (kept in
   sync with actual feature status — see `components/Roadmap.tsx`)
-- `Roadmap` — grid of feature cards with a Live/Activating-soon badge
+- `Roadmap` — grid of feature cards, each with a "Live" badge (every
+  item is live now; the type only allows that one status)
 - `SiteFooter` — bottom bar
 
 Shared editing pattern (profile + every resume, see

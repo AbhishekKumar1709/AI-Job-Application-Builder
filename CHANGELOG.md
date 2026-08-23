@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026-08-23 (7)
+
+### Fixed
+- `DATABASE.md`'s "Models" section documented only `User` — rewrote it
+  to cover all 15 current models (auth/token, profile, resume, cover
+  letter, application tracking, rate limiting), grouped by area, plus a
+  cascade-delete summary. Also dropped a stale "SQLite dev datasource"
+  comment at the top of `schema.prisma` (this project has used Postgres
+  everywhere since Phase 1).
+- `docs/UI_DESIGN.md`'s `Roadmap` component description still described
+  the old Live/Activating-soon two-status badge, which was simplified
+  away when Gemini went live (`RoadmapItem.status` is now just
+  `"Live"`). Fixed to match. Everything else in the file (colors,
+  typography, form/button classes, components list) was checked against
+  the actual code and found accurate — the checklist item marking this
+  file unfilled in `PROJECT_STATUS.md` was itself stale; corrected.
+
 ## 2026-08-23 (6)
 
 ### Added

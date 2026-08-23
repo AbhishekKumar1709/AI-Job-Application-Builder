@@ -10,7 +10,7 @@ Last updated: 2026-08-23
 - [x] GitHub repo created (`AI-Job-Application-Builder`)
 - [x] Baseline documentation set created
 - [x] Landing page (roadmap-only, no functional CTAs yet)
-- [ ] Design system / UI_DESIGN.md filled in with full component set
+- [x] Design system / UI_DESIGN.md filled in with full component set
 - [x] Authentication (email+password via NextAuth/Auth.js Credentials
       provider, JWT sessions; signup/login/dashboard/logout tested
       end-to-end)
@@ -151,8 +151,6 @@ browser session (zero console errors across all screens touched).
   verified by data isolation testing — but Preview deployments still
   share `main` with Production (see `DATABASE.md`); Neon's per-branch
   Preview integration would close this but isn't set up yet
-- Phase 1 design system (`UI_DESIGN.md`) not filled in beyond the
-  landing page
 - Resend free tier has no verified sending domain, so email delivery is
   restricted to the Resend account owner's own address until a domain is
   verified

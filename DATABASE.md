@@ -47,22 +47,82 @@ commit as any `schema.prisma` change.
 
 ## Models
 
-### User
+15 models total. Grouped by area below; see `schema.prisma` for the
+authoritative field list.
 
-- **Purpose:** Account record used by NextAuth's Credentials provider for
-  email+password login.
-- **Fields:**
-  - `id` (String, cuid, primary key)
-  - `name` (String, optional)
-  - `email` (String, unique)
-  - `passwordHash` (String, bcrypt hash — never the plaintext password)
-  - `createdAt` (DateTime, defaults to now)
-- **Relations:** none yet
-- **Constraints:** `email` is unique
-- **Indexes:** primary key on `id`; unique index on `email`
+### Auth & account
 
-No other models exist yet. Profile, Resume, Template, Application, etc. will
-be added and documented here as they're built.
+**User** — the account record used by NextAuth's Credentials provider.
+`email` (unique), `passwordHash` (bcrypt, never plaintext), `emailVerified`
+(null until confirmed via `EmailVerificationToken`), `failedLoginAttempts`
++ `lockedUntil` (account lockout, see SECURITY.md). Owns one `Profile`,
+many `Resume`, many `Application`.
+
+**EmailVerificationToken** — one-time token for confirming a signup email.
+`tokenHash` (SHA-256 of the raw token, unique), `expiresAt`, `usedAt`
+(null until consumed). Cascade-deletes with its `User`.
+
+**PasswordResetToken** — same shape as `EmailVerificationToken`, for the
+forgot-password flow. `tokenHash` unique, `expiresAt`, `usedAt`.
+Cascade-deletes with its `User`.
+
+### Master profile
+
+**Profile** — one per `User` (`userId` unique), the canonical work
+history/skills/education reused when snapshotting new resumes.
+`headline`, `phone`, `location`, `summary`. Cascade-deletes with its
+`User`.
+
+**Experience**, **Education**, **Skill** — child records of `Profile`
+(cascade-deletes with it). `Experience`/`Education` carry `sortOrder`
+(manual reordering, see FEATURES.md) plus the usual date/description
+fields. `Skill` is just a `name`, unique per `(profileId, name)`.
+
+### Resumes
+
+**Resume** — one editable, independently-versioned document per
+`title`, owned by a `User`. Snapshots `headline`/`phone`/`location`/
+`summary` from `Profile` at creation, then diverges. `template`
+(`"classic"` or `"compact"`, default `"classic"`) picks the render in
+`ResumePreview.tsx`. Owns `ResumeExperience`, `ResumeEducation`,
+`ResumeSkill`, `CoverLetter`, and is optionally linked from
+`Application`.
+
+**ResumeExperience**, **ResumeEducation**, **ResumeSkill** — the
+resume-scoped counterparts of `Experience`/`Education`/`Skill`, same
+shape (including `sortOrder`), cascade-deleting with their `Resume`.
+Independent of the profile's copies once created.
+
+**CoverLetter** — AI-generated (and then editable) cover letter text,
+scoped to a `Resume` (cascade-deletes with it). `jobDescription` (the
+input) and `content` (the generated/edited output) are both stored.
+Optionally linked from `Application` via `coverLetterId`.
+
+### Application tracking
+
+**Application** — a tracked job application: `company`, `role`,
+`status` (`ApplicationStatus` enum: `SAVED`, `APPLIED`, `INTERVIEWING`,
+`OFFER`, `REJECTED`, `WITHDRAWN`), `jobUrl`, `notes`, `appliedAt`. Owned
+by a `User`; optionally references a `Resume` and/or a `CoverLetter` —
+both via `onDelete: SetNull`, so deleting the resume/letter unlinks the
+application instead of deleting it.
+
+### Infrastructure
+
+**RateLimitBucket** — fixed-window counter for `lib/rateLimit.ts`
+(Postgres-backed since Vercel serverless functions don't share memory).
+Composite primary key `(key, windowStart)`; `count` increments per
+request in that window. Not tied to a `User` — `key` is an arbitrary
+string like `auth:login:<email>` or `ai:optimize:<userId>`.
+
+### Cascade summary
+
+Deleting a `User` cascades through everything it owns: `Profile` (and
+its `Experience`/`Education`/`Skill`), every `Resume` (and its
+`ResumeExperience`/`ResumeEducation`/`ResumeSkill`/`CoverLetter`), every
+`Application`, and both token types. This is what powers account
+deletion (`DELETE /api/account`) — no manual cleanup needed beyond the
+one `prisma.user.delete()` call.
 
 ## Prisma 7 client setup
 
