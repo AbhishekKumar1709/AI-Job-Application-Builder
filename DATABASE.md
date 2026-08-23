@@ -36,11 +36,20 @@ server (re)starts or after leaving it idle; the retry immediately after
 succeeds. Not a bug, just cold-start latency.
 
 **Remaining gap:** Preview deployments still share `main` with
-Production — only local dev is isolated so far. Neon's Vercel
-integration supports automatic per-branch databases for Preview
-deployments (a branch created and torn down per PR); not yet configured.
-Worth doing before Preview deploys are used for anything beyond quick
-visual checks.
+Production — only local dev is isolated so far. Confirmed empirically
+(2026-08-23): pushed a throwaway commit to a test branch, let Vercel
+build the Preview deployment, and checked the Neon project's branch
+count before and after — it stayed at 2 (`main`, `development`), so
+Neon's per-preview branching is **not** on by default with this
+integration. Per Neon's own docs
+(neon.com/docs/guides/vercel-managed-integration), turning it on
+requires re-running the "Connect a Project" flow with the
+"Create Database Branch For Deployment → Preview" checkbox — but the
+project already shows as "Connected" in that dialog, so doing this means
+disconnecting the current (working) connection first and reconnecting.
+Deferred: that's a real risk window for Production's live `DATABASE_URL`
+to fix a non-blocking gap. Worth doing if Preview deploys start being
+used for anything beyond quick visual checks.
 
 Keep this file synchronized with the actual schema. Update it in the same
 commit as any `schema.prisma` change.

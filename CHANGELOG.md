@@ -1,5 +1,27 @@
 # Changelog
 
+## 2026-08-23 (8)
+
+### Investigated
+- Whether Neon's Vercel-managed integration auto-creates a branch per
+  Preview deployment (the documented "Preview shares `main` with
+  Production" gap). Tested empirically instead of assuming: pushed a
+  throwaway commit to a test branch, let Vercel build the Preview
+  deployment, and checked Neon's branch count before/after — stayed at
+  2, confirming it's not automatic. Found via Neon's own docs that
+  enabling it requires re-running the "Connect a Project" flow with a
+  "Create Database Branch For Deployment → Preview" checkbox, but the
+  project already shows as connected in that dialog — enabling it means
+  disconnecting the current live connection first.
+
+### Deferred
+- Decided not to disconnect/reconnect the production database
+  integration to close this gap: it's a real risk window for
+  Production's `DATABASE_URL` (a working connection) to fix a
+  non-blocking, already-documented issue. Left as-is; see `DATABASE.md`.
+- Cleaned up: deleted the throwaway test branch and its remote copy
+  after the experiment.
+
 ## 2026-08-23 (7)
 
 ### Fixed
