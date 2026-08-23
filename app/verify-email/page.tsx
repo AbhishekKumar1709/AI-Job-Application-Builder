@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { AppHeader } from "@/components/AppHeader";
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
@@ -39,29 +40,32 @@ function VerifyEmailContent() {
   }, [token]);
 
   return (
-    <main className="mx-auto flex max-w-sm flex-1 flex-col justify-center px-6 py-24">
-      <h1 className="text-2xl font-semibold tracking-tight">Verify your email</h1>
+    <div className="flex min-h-full flex-1 flex-col">
+      <AppHeader />
+      <main className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center px-6 py-24">
+        <h1 className="text-2xl font-semibold tracking-tight">Verify your email</h1>
 
-      {status === "verifying" && <p className="mt-4 text-sm text-muted">Verifying…</p>}
+        {status === "verifying" && <p className="mt-4 text-sm text-muted">Verifying…</p>}
 
-      {status === "done" && (
-        <>
-          <p className="mt-4 text-sm text-green-600">Your email has been verified.</p>
-          <Link href="/dashboard" className="mt-6 text-sm text-accent hover:underline">
-            Go to dashboard
-          </Link>
-        </>
-      )}
+        {status === "done" && (
+          <>
+            <p className="mt-4 text-sm text-green-600">Your email has been verified.</p>
+            <Link href="/dashboard" className="mt-6 text-sm text-accent hover:underline">
+              Go to dashboard
+            </Link>
+          </>
+        )}
 
-      {status === "error" && (
-        <>
-          <p className="mt-4 text-sm text-red-500">{error}</p>
-          <Link href="/account" className="mt-6 text-sm text-accent hover:underline">
-            Go to account settings to request a new link
-          </Link>
-        </>
-      )}
-    </main>
+        {status === "error" && (
+          <>
+            <p className="mt-4 text-sm text-red-500">{error}</p>
+            <Link href="/account" className="mt-6 text-sm text-accent hover:underline">
+              Go to account settings to request a new link
+            </Link>
+          </>
+        )}
+      </main>
+    </div>
   );
 }
 

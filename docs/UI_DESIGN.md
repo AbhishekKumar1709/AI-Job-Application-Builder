@@ -75,13 +75,29 @@ bg-surface p-6` (landing page roadmap cards, the original pattern).
 
 ## Components
 
-Landing page (unchanged since first built):
-- `SiteHeader` — top nav with logo text + links
-- `Hero` — headline, subheadline, two CTAs, a status badge (kept in
-  sync with actual feature status — see `components/Roadmap.tsx`)
+Landing page:
+- `SiteHeader` — top nav; logo links to `/`, plus Features/GitHub/Log
+  in/Sign up
+- `Hero` — status badge, headline (with a gradient accent on the last
+  line), subheadline, two CTAs, an illustrative product-mockup card
+  (skeleton bars only — no invented numbers or stats), and a row of 5
+  feature icons (inline SVGs, single-color using the existing `accent`
+  token — no new color hues were introduced)
 - `Roadmap` — grid of feature cards, each with a "Live" badge (every
   item is live now; the type only allows that one status)
 - `SiteFooter` — bottom bar
+
+App-wide navigation:
+- `AppHeader` (client component, `components/AppHeader.tsx`) — used on
+  every page that isn't the landing page (auth pages: login, signup,
+  forgot/reset password, verify-email; authenticated pages: dashboard,
+  profile, resumes, resume editor/preview, applications, account).
+  Logo links to `/`; right side shows Log in/Sign up when signed out or
+  Dashboard/Sign out (via `useSession()`) when signed in. Added to close
+  a real gap — several pages previously had no way back to the site's
+  home page at all. Each page still keeps its own more-specific
+  secondary link too (e.g. "Back to profile") where one makes sense.
+  Replaced the old page-local `SignOutButton` (deleted, now unused).
 
 Shared editing pattern (profile + every resume, see
 [ARCHITECTURE.md](./ARCHITECTURE.md)):

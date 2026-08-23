@@ -4,12 +4,12 @@ export function SiteHeader() {
   return (
     <header className="border-b border-border">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-        <span className="text-sm font-semibold tracking-tight">
+        <Link href="/" className="text-sm font-semibold tracking-tight hover:text-accent">
           AI Job Application Builder
-        </span>
+        </Link>
         <nav className="flex items-center gap-6 text-sm text-muted">
           <a href="#roadmap" className="hover:text-foreground">
-            Roadmap
+            Features
           </a>
           <a
             href="https://github.com/AbhishekKumar1709/AI-Job-Application-Builder"

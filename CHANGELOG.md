@@ -1,5 +1,38 @@
 # Changelog
 
+## 2026-08-23 (10)
+
+### Added
+- `AppHeader` — a consistent, clickable-logo header now present on
+  every page that isn't the landing page (login, signup, forgot/reset
+  password, verify-email, dashboard, profile, resume editor/preview,
+  applications, account). Closes a real gap: several of these pages
+  previously had no link back to the site's home page at all. Signed-out
+  view shows Log in/Sign up; signed-in view shows Dashboard/Sign out
+  (session-aware via `useSession()`), replacing the old page-local
+  `SignOutButton` (deleted).
+- Redesigned the landing page hero: gradient accent on the headline's
+  last line, an illustrative resume-builder mockup card (skeleton bars
+  only), and a 5-icon feature row (AI Resume Builder, ATS Checker, AI
+  Cover Letters, Job Match, Application Tracker) using inline SVGs and
+  the existing single `accent` color token — no new colors introduced.
+  `SiteHeader`'s logo now links to `/` too.
+
+### Explicitly not implemented
+- A landing-page redesign reference image was provided with fabricated
+  metrics (25K+ resumes built, 87% ATS success rate, 15K+ jobs matched,
+  "trusted by 10,000+ job seekers," a 4.9/5 rating with fake avatars).
+  None of that is real — this app has no meaningful user base yet — so
+  none of it was added. Took the layout/style ideas (mockup card, icon
+  row, gradient headline) without the fabricated numbers.
+
+### Verified
+- Lint and `tsc --noEmit` clean. Playwright: signed up a real test
+  account, confirmed clicking the header logo from `/dashboard`
+  navigates to `/`, confirmed sign-out via the header works, checked
+  `/`, `/login`, `/profile` render with zero console errors. Test
+  account deleted afterward via the real UI delete flow.
+
 ## 2026-08-23 (9)
 
 ### Investigated further
