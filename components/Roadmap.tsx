@@ -1,7 +1,7 @@
 type RoadmapItem = {
   title: string;
   description: string;
-  status: "Live" | "Activating soon";
+  status: "Live";
 };
 
 const items: RoadmapItem[] = [
@@ -24,12 +24,12 @@ const items: RoadmapItem[] = [
   {
     title: "AI optimization & ATS check",
     description: "Get AI suggestions to tighten wording and check compatibility with applicant tracking systems.",
-    status: "Activating soon",
+    status: "Live",
   },
   {
     title: "Cover letter generation",
     description: "Generate a tailored cover letter from your profile and a job description.",
-    status: "Activating soon",
+    status: "Live",
   },
   {
     title: "Application tracker",
@@ -44,8 +44,7 @@ export function Roadmap() {
       <div className="mx-auto max-w-5xl px-6 py-20">
         <h2 className="text-2xl font-semibold tracking-tight">What&apos;s here</h2>
         <p className="mt-2 text-muted">
-          Most of this is live today. The two AI-powered items are built and
-          finishing activation. Full details tracked in{" "}
+          Everything below is live. Full details tracked in{" "}
           <a
             href="https://github.com/AbhishekKumar1709/AI-Job-Application-Builder/blob/master/FEATURES.md"
             className="underline underline-offset-2 hover:text-foreground"
@@ -64,13 +63,7 @@ export function Roadmap() {
             >
               <div className="flex items-center justify-between">
                 <h3 className="font-medium">{item.title}</h3>
-                <span
-                  className={
-                    item.status === "Live"
-                      ? "rounded-full border border-accent px-2 py-0.5 text-xs text-accent"
-                      : "rounded-full border border-border px-2 py-0.5 text-xs text-muted"
-                  }
-                >
+                <span className="rounded-full border border-accent px-2 py-0.5 text-xs text-accent">
                   {item.status}
                 </span>
               </div>

@@ -66,8 +66,9 @@ Last updated: 2026-08-21
   tested end-to-end via curl, **and** live AI output verified — real
   calls through the actual HTTP API returned real, coherent, grounded
   responses for all four features (see AI.md and FEATURES.md for
-  specifics). `GEMINI_API_KEY` is set locally; not yet in Vercel
-  production.
+  specifics). `GEMINI_API_KEY` is set and verified live in both local
+  dev and Vercel production — including a live call against the real
+  production URL after deploying.
 
 ## Phase 4 — Application tracking
 
@@ -144,8 +145,6 @@ browser session (zero console errors across all screens touched).
   now protecting real user data, not a placeholder table
 - Phase 1 design system (`UI_DESIGN.md`) not filled in beyond the
   landing page
-- `GEMINI_API_KEY` is set and verified live locally, but not yet added
-  to Vercel production
 - `RESEND_API_KEY` isn't set anywhere yet — password reset/email
   verification untested live
 

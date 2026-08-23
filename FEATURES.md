@@ -275,7 +275,10 @@ Progress / Complete / Needs Testing / Blocked.
   — see each feature's testing status and [AI.md](../docs/AI.md) for
   full detail, including a real bug (empty output under a too-small
   token budget) caught and fixed during this testing. `GEMINI_API_KEY`
-  is set locally; not yet in Vercel production.
+  is set in Vercel production (added via the dashboard, verified by a
+  live call to `/api/resumes/:id/optimize` against the real production
+  URL after redeploy — real 200 with genuine suggestions, not a local
+  test).
 
 ## AI resume optimization
 

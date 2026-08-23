@@ -4,8 +4,8 @@ export function Hero() {
   return (
     <section className="mx-auto max-w-3xl px-6 py-24 text-center">
       <p className="mb-4 inline-block rounded-full border border-border px-3 py-1 text-xs text-muted">
-        Live — profile, resume builder & templates, and application
-        tracking. AI tools finishing activation.
+        Live — profile, resume builder & templates, AI tools, and
+        application tracking.
       </p>
       <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
         Build a resume that actually gets you hired

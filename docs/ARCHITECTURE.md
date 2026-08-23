@@ -10,12 +10,13 @@ and [PROJECT_STATUS.md](../PROJECT_STATUS.md) for the authoritative,
 continuously-updated status and test evidence per feature — this file
 describes the shape of the system, not feature-by-feature status.
 
-Known blockers: `GEMINI_API_KEY` is set locally and verified live (see
-[AI.md](./AI.md)) but not yet in Vercel production; `RESEND_API_KEY`
-isn't set anywhere yet, so real email delivery is code-complete but
-unverified live. Phone/OTP verification (MSG91) is blocked on DLT
-registration and not wired into signup/login. Dev/Preview/Production
-still share one Neon database (see [DATABASE.md](../DATABASE.md)).
+Known blockers: `RESEND_API_KEY` isn't set anywhere yet, so real email
+delivery is code-complete but unverified live. Phone/OTP verification
+(MSG91) is blocked on DLT registration and not wired into signup/login.
+Dev/Preview/Production still share one Neon database (see
+[DATABASE.md](../DATABASE.md)). `GEMINI_API_KEY` is set and verified
+live in both local dev and Vercel production (see [AI.md](./AI.md)) —
+no longer a blocker.
 
 ## Frontend architecture
 
@@ -194,7 +195,7 @@ flowchart LR
     Prisma --> Neon[("Postgres (Neon)")]
 ```
 
-`GEMINI_API_KEY` is set and verified live locally but not yet in Vercel
-production; `RESEND_API_KEY` isn't set anywhere yet (see the top of this
+`GEMINI_API_KEY` is set and verified live in both local dev and Vercel
+production. `RESEND_API_KEY` isn't set anywhere yet (see the top of this
 file) — real email delivery is wired up in code but not live for real
 users until that key is added.

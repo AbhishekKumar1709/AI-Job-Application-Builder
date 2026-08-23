@@ -8,10 +8,11 @@ and Anthropic's API does not (pay-as-you-go only, aside from a small
 one-time trial credit on new accounts). See
 [FEATURES.md](../FEATURES.md) for the per-feature test evidence.
 
-**Status:** `GEMINI_API_KEY` is set locally and every route below has
-been called live end-to-end with real responses (see Verified section).
-Not yet set in Vercel production — see
-[PROJECT_STATUS.md](../PROJECT_STATUS.md).
+**Status:** `GEMINI_API_KEY` is set both locally and in Vercel
+production. Every route has been called live end-to-end with real
+responses in both environments (see Verified section) — including a
+direct call against the real production URL after deploying, not just
+local testing.
 
 ## AI provider architecture
 
@@ -128,8 +129,8 @@ rather than prompt changes alone.
 `GEMINI_API_KEY` is read from the environment only
 (`process.env.GEMINI_API_KEY` in `lib/ai.ts`), never hardcoded, never
 sent to the client. Documented in [.env.example](../.env.example). Set
-in the local `.env` and verified working; not yet added to Vercel
-production.
+in the local `.env` and in Vercel's dashboard (Production + Preview
+environments), both verified working.
 
 ## Verified
 
@@ -154,3 +155,11 @@ its entire budget on internal thinking and returned empty text
 app's actual `maxOutputTokens: 4096` was confirmed sufficient — verified
 by inspecting `response.usageMetadata` directly, not just assuming.
 Test account and data deleted afterward.
+
+Re-verified against the real production deployment after adding
+`GEMINI_API_KEY` to Vercel and redeploying: signed up a test account
+directly against `https://ai-job-application-builder.vercel.app`,
+built a resume, and called `POST /api/resumes/:id/optimize` against
+the live production URL — real `200` with genuine suggestions,
+confirming the key works in production, not just locally. Test account
+deleted afterward.

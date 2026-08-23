@@ -1,5 +1,37 @@
 # Changelog
 
+## 2026-08-23 (3)
+
+### Added
+- `GEMINI_API_KEY` added to Vercel production (Production + Preview
+  environments), via the dashboard. Deployed the 12 commits that had
+  been sitting local-only since the last production deploy (3 days of
+  work: password reset, master profile, resume builder, resume upload/
+  parsing, all Phase 3 AI features, resume templates + PDF export, the
+  application tracker, rate limiting, the 10-gap audit-closure batch,
+  and the Gemini provider switch) — `git push origin master`, which
+  triggered Vercel's auto-deploy from GitHub.
+- Landing page (`Hero.tsx`, `Roadmap.tsx`) updated to mark every feature
+  "Live" (previously the two AI-powered roadmap items said "Activating
+  soon" pending this exact deployment). Removed the now-dead
+  `"Activating soon"` branch from `RoadmapItem`'s status type and the
+  conditional badge-color logic in `Roadmap.tsx`, since every item is
+  unconditionally "Live" now.
+
+### Verified
+- Confirmed the production deployment actually shipped the current
+  code (not a stale one) — the Vercel deployment's source commit matched
+  the just-pushed `271054c`, and its own screenshot thumbnail showed the
+  updated landing page copy.
+- Re-verified signup and the AI `optimize` endpoint directly against the
+  real production URL (`ai-job-application-builder.vercel.app`), not
+  just localhost — real `201` on signup, real `200` with genuine
+  Gemini-generated suggestions on `/api/resumes/:id/optimize`. Test
+  account deleted from the (shared local/prod) database afterward.
+- Landing page copy re-verified via Playwright screenshot against the
+  local dev server after the copy change — all six roadmap items render
+  "Live" in accent color, zero console errors.
+
 ## 2026-08-23 (2)
 
 ### Changed
