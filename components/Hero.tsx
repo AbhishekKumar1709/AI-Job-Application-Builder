@@ -4,7 +4,8 @@ export function Hero() {
   return (
     <section className="mx-auto max-w-3xl px-6 py-24 text-center">
       <p className="mb-4 inline-block rounded-full border border-border px-3 py-1 text-xs text-muted">
-        Early development — accounts work, resume tools don&apos;t yet
+        Live — profile, resume builder & templates, and application
+        tracking. AI tools finishing activation.
       </p>
       <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
         Build a resume that actually gets you hired
@@ -25,7 +26,7 @@ export function Hero() {
           href="#roadmap"
           className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium hover:bg-surface"
         >
-          See what&apos;s planned
+          See what&apos;s live
         </a>
       </div>
     </section>
