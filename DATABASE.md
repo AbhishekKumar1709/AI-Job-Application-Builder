@@ -36,20 +36,40 @@ server (re)starts or after leaving it idle; the retry immediately after
 succeeds. Not a bug, just cold-start latency.
 
 **Remaining gap:** Preview deployments still share `main` with
-Production — only local dev is isolated so far. Confirmed empirically
-(2026-08-23): pushed a throwaway commit to a test branch, let Vercel
-build the Preview deployment, and checked the Neon project's branch
-count before and after — it stayed at 2 (`main`, `development`), so
-Neon's per-preview branching is **not** on by default with this
-integration. Per Neon's own docs
-(neon.com/docs/guides/vercel-managed-integration), turning it on
-requires re-running the "Connect a Project" flow with the
-"Create Database Branch For Deployment → Preview" checkbox — but the
-project already shows as "Connected" in that dialog, so doing this means
-disconnecting the current (working) connection first and reconnecting.
-Deferred: that's a real risk window for Production's live `DATABASE_URL`
-to fix a non-blocking gap. Worth doing if Preview deploys start being
-used for anything beyond quick visual checks.
+Production — only local dev is isolated so far. Investigated thoroughly
+(2026-08-23):
+
+- Confirmed empirically that Neon's per-preview branching isn't on by
+  default: pushed a throwaway commit to a test branch, let Vercel build
+  the Preview deployment, and checked the Neon project's branch count
+  before/after — stayed at 2 (`main`, `development`).
+- Per Neon's docs (neon.com/docs/guides/vercel-managed-integration),
+  turning it on means re-running the "Connect a Project" flow with
+  "Create Database Branch For Deployment → Preview" checked. Attempted
+  this from Vercel (Storage → neon-cerulean-bridge → "Connect to this
+  project"): the dialog accepts the checkbox and a custom env var
+  prefix, but submitting fails with "This project is already connected
+  to the target store in one of the chosen environments" — it can't
+  reconfigure an existing connection, only create a new one.
+- Looked for a way to disconnect the existing connection first (Storage
+  page env var "..." menu → "Manage Connection"; the database's own
+  Settings page: Update Name, Update Configuration, Rotate Secrets,
+  Allowed Environments). None of these disconnect a project from a
+  database — the only database-level action that removes the
+  relationship is **"Delete Database"**, which is destructive (wipes
+  all data on both `main` and `development`, not just the connection).
+
+**Conclusion:** there's no self-service, non-destructive way to change
+this setting after initial setup through Vercel's Neon Marketplace
+integration UI. Fixing this for real would mean either deleting and
+recreating the whole database (unacceptable — real data loss) or
+setting up a second, separate Neon project from scratch just for
+Preview and manually wiring its connection string into Preview env
+vars (loses the "same schema, auto-migrated" convenience the current
+setup has, and still doesn't get per-branch-per-PR). Not pursuing
+either. Preview and Production will keep sharing `main` for the
+foreseeable future; treat Preview deploys as read-mostly/visual checks
+only, never as somewhere to write test data you care about isolating.
 
 Keep this file synchronized with the actual schema. Update it in the same
 commit as any `schema.prisma` change.

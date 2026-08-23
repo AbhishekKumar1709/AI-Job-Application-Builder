@@ -149,11 +149,13 @@ browser session (zero console errors across all screens touched).
 
 - Local dev is now isolated on its own Neon branch (`development`),
   verified by data isolation testing — but Preview deployments still
-  share `main` with Production (see `DATABASE.md`). Confirmed Neon's
-  per-preview branching isn't on by default (empirically, not just by
-  assumption); enabling it means disconnecting and reconnecting the live
-  database integration, which risks Production's `DATABASE_URL` — 
-  deferred as not worth that risk for a non-blocking gap
+  share `main` with Production (see `DATABASE.md`). Investigated
+  thoroughly, including attempting the fix directly: Vercel's Neon
+  Marketplace integration has no self-service, non-destructive way to
+  reconfigure an existing connection to enable per-preview branching —
+  the only database-level action available is a destructive full delete.
+  Not fixable without unacceptable risk; documented as a hard platform
+  limitation, not a "haven't gotten to it yet" gap
 - Resend free tier has no verified sending domain, so email delivery is
   restricted to the Resend account owner's own address until a domain is
   verified

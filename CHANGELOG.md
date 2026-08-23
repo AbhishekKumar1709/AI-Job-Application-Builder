@@ -1,5 +1,28 @@
 # Changelog
 
+## 2026-08-23 (9)
+
+### Investigated further
+- Attempted the actual fix for the Preview/Production Neon-branch-sharing
+  gap: backed up Production's `DATABASE_URL`/`DATABASE_URL_UNPOOLED`
+  (safety net), then tried reconfiguring the existing Vercel↔Neon
+  connection via "Connect to this project" with the Preview-branch
+  checkbox and a `DATABASE` env var prefix. Submission failed: "This
+  project is already connected to the target store in one of the chosen
+  environments" — the dialog can only create new connections, not edit
+  existing ones. Searched every other angle (env var "Manage
+  Connection", the database's own Settings page) for a disconnect
+  option; the only one that exists is "Delete Database", which is
+  destructive (wipes both `main` and `development`).
+
+### Conclusion
+- There is no self-service, non-destructive way to enable per-preview
+  branching on an already-connected Vercel Marketplace Neon database.
+  Not pursuing a destructive fix for a non-blocking gap. Production's
+  `DATABASE_URL` was never actually touched (the reconfigure attempt
+  errored before submitting) — verified untouched, no action needed on
+  the backup. Documented as a hard platform limitation in `DATABASE.md`.
+
 ## 2026-08-23 (8)
 
 ### Investigated
