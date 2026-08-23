@@ -69,14 +69,15 @@ Progress / Complete / Needs Testing / Blocked.
   password). Uses Resend to send the email. Tokens are single-use,
   expire after 1 hour, and are stored as a SHA-256 hash (not the raw
   token) in `PasswordResetToken`.
-- **Status:** Complete (email delivery itself unverified — see testing status)
+- **Status:** Complete, real email delivery verified live in local dev
 - **Dependencies:** Resend account + `RESEND_API_KEY` for real email
   delivery — unlike MSG91, no regulatory registration needed; free signup
   at resend.com, and sandbox mode (`onboarding@resend.dev` sender)
   delivers immediately to the account owner's own email with no domain
-  verification. In development without `RESEND_API_KEY` set, the reset
-  link is logged to the server console instead (see `lib/email.ts`) so
-  the flow is testable with no external account at all.
+  verification (a verified domain is needed to send to arbitrary
+  recipients — see SECURITY.md). In development without `RESEND_API_KEY`
+  set, the reset link is logged to the server console instead (see
+  `lib/email.ts`) so the flow is still testable with no external account.
 - **Related files:** `lib/email.ts`, `app/api/auth/forgot-password/route.ts`,
   `app/api/auth/reset-password/route.ts`, `app/forgot-password/page.tsx`,
   `app/reset-password/page.tsx`
@@ -85,12 +86,15 @@ Progress / Complete / Needs Testing / Blocked.
 - **Database requirements:** `PasswordResetToken` model (migration
   `20260820034042_add_password_reset_token`)
 - **Testing status:** Manually tested end-to-end via curl against the dev
-  server (using the console-logged link, since `RESEND_API_KEY` isn't
-  set): invalid email (400), weak password (400), bogus token (400),
+  server: invalid email (400), weak password (400), bogus token (400),
   valid token consumed (200), token reuse rejected (400), old password
   rejected after reset (401), new password logs in with a valid session
-  (200). Real Resend delivery itself not yet verified — that only needs
-  an API key, no other blocker. Test account deleted afterward.
+  (200). With `RESEND_API_KEY` set, also sent a real forgot-password
+  email through the live Resend API to the account owner's address and
+  confirmed no error in the server log (Resend would reject an
+  unverified recipient with a visible error). `RESEND_API_KEY` is set in
+  local dev only, not yet in Vercel production. Test account deleted
+  afterward.
 
 ## Master profile
 
@@ -467,9 +471,9 @@ Progress / Complete / Needs Testing / Blocked.
   send helper). `/verify-email?token=...` confirms it and sets
   `User.emailVerified`. `/account` shows a banner with a resend button
   while unverified (rate-limited to 3/hour).
-- **Status:** Complete (code), untested live — needs `RESEND_API_KEY`,
-  same as password reset
-- **Dependencies:** none
+- **Status:** Complete, real email delivery verified live in local dev
+- **Dependencies:** Resend account + `RESEND_API_KEY`, same as password
+  reset
 - **Related files:** `lib/emailVerification.ts`, `lib/email.ts`
   (`sendVerificationEmail`), `app/api/auth/verify-email/route.ts`,
   `app/api/auth/resend-verification/route.ts`, `app/verify-email/page.tsx`
@@ -480,7 +484,10 @@ Progress / Complete / Needs Testing / Blocked.
   rejected (400); valid token verifies (200) and sets `emailVerified`;
   reusing the same token rejected (400, single-use enforced); resending
   when already verified short-circuits with a message instead of
-  sending another email. Test account deleted afterward.
+  sending another email. With `RESEND_API_KEY` set, also re-ran signup
+  and confirmed the verification email sent via the real Resend API with
+  no error in the server log. `RESEND_API_KEY` is set in local dev only,
+  not yet in Vercel production. Test account deleted afterward.
 
 ## Account lockout
 

@@ -63,8 +63,11 @@ AI provider (`GEMINI_API_KEY`), email (`RESEND_API_KEY`), and SMS
 (`MSG91_AUTH_KEY`) keys are read only from environment variables, never
 committed, never sent to the client. See [.env.example](../.env.example).
 `GEMINI_API_KEY` is set and verified live in both local dev and Vercel
-production. `RESEND_API_KEY` isn't set anywhere yet — see
-[PROJECT_STATUS.md](../PROJECT_STATUS.md).
+production. `RESEND_API_KEY` is set and verified live in local dev only,
+not yet in Vercel production — see [PROJECT_STATUS.md](../PROJECT_STATUS.md).
+Resend's free tier has no verified sending domain, so real delivery is
+currently restricted to the Resend account owner's own email address;
+other recipients would need a verified domain.
 
 ## Privacy
 
