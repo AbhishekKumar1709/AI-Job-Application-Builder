@@ -4,7 +4,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { ExperienceSection } from "./profile/ExperienceSection";
 import { EducationSection } from "./profile/EducationSection";
 import { SkillsSection } from "./profile/SkillsSection";
-import { buttonClass, inputClass, type Experience, type Education, type Skill } from "./profile/types";
+import { buttonClass, inputClass, JOB_TITLE_SUGGESTIONS, type Experience, type Education, type Skill } from "./profile/types";
 
 const API_BASE = "/api/profile";
 
@@ -77,16 +77,22 @@ export function ProfileEditor() {
       <section className="rounded-xl border border-border bg-surface p-6">
         <h2 className="text-lg font-semibold">Basic info</h2>
         <form onSubmit={handleSaveBasic} className="mt-4 flex flex-col gap-4">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <label className="flex flex-col gap-1 text-sm">
               Headline
               <input
                 type="text"
+                list="job-title-suggestions"
                 placeholder="e.g. Senior Frontend Engineer"
                 value={basic.headline ?? ""}
                 onChange={(e) => setBasic({ ...basic, headline: e.target.value })}
                 className={inputClass}
               />
+              <datalist id="job-title-suggestions">
+                {JOB_TITLE_SUGGESTIONS.map((title) => (
+                  <option key={title} value={title} />
+                ))}
+              </datalist>
             </label>
             <label className="flex flex-col gap-1 text-sm">
               Phone
@@ -97,7 +103,7 @@ export function ProfileEditor() {
                 className={inputClass}
               />
             </label>
-            <label className="flex flex-col gap-1 text-sm sm:col-span-2">
+            <label className="flex flex-col gap-1 text-sm">
               Location
               <input
                 type="text"
@@ -107,7 +113,7 @@ export function ProfileEditor() {
                 className={inputClass}
               />
             </label>
-            <label className="flex flex-col gap-1 text-sm sm:col-span-2">
+            <label className="flex flex-col gap-1 text-sm sm:col-span-3">
               Summary
               <textarea
                 rows={4}

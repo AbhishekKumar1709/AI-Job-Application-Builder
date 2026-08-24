@@ -1,5 +1,28 @@
 # Changelog
 
+## 2026-08-24 (8)
+
+### Fixed
+- Follow-up to the profile redesign: the page still had too much unused
+  margin on wide screens (widened to `max-w-4xl` last time, not enough)
+  — widened further to `max-w-6xl`, and Basic Info's grid went from
+  2 columns to 3 (Headline/Phone/Location each get their own column,
+  Summary spans full width below).
+- The "headline" part of the original request was actually about
+  autocomplete/autofill suggestions on the Headline field, not the
+  avatar-circle feature built earlier (which was a separate, correctly-
+  understood part of the same request). Added a native HTML `<datalist>`
+  of ~38 common job titles wired to the Headline input via the `list`
+  attribute — no JS library needed, works with the browser's own
+  autocomplete UI, naturally filters as you type.
+
+### Verified
+- Playwright: confirmed the datalist has all 38 options and is
+  correctly linked to the Headline input, screenshotted the wider
+  layout at the same viewport width the user reported the issue at,
+  zero console errors. Lint, `tsc --noEmit`, and a full production
+  build all clean.
+
 ## 2026-08-24 (7)
 
 ### Added

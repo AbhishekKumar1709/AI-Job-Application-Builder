@@ -15,7 +15,7 @@ export default async function ProfilePage() {
   return (
     <div className="flex min-h-full flex-1 flex-col">
       <AppHeader />
-      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col px-6 py-24">
+      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-6 py-24">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold tracking-tight">Profile</h1>
           <Link href="/dashboard" className="text-sm text-accent hover:underline">
