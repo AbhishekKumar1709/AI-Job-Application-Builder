@@ -12,7 +12,7 @@ export function SiteHeader() {
             Features
           </a>
           <a
-            href="https://github.com/AbhishekKumar1709/AI-Job-Application-Builder"
+            href="https://github.com/AbhishekKumar1709/CVRespire"
             className="hover:text-foreground"
             target="_blank"
             rel="noreferrer"

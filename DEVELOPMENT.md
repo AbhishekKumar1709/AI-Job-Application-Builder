@@ -6,7 +6,7 @@ How to pick up and continue this project.
 
 ```bash
 git clone <repo-url>
-cd AI-Job-Application-Builder
+cd CVRespire
 npm install
 cp .env.example .env
 ```

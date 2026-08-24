@@ -17,7 +17,7 @@ Last updated: 2026-08-23
 - [x] Hosted database (Postgres on Neon, connected in Production/Preview/
       Development)
 - [x] Live production deployment verified working end-to-end (signup,
-      login, dashboard) at ai-job-application-builder.vercel.app, not
+      login, dashboard) at cvrespire.vercel.app, not
       just local dev
 - [ ] Separate database branch/instance per environment (currently shared)
 

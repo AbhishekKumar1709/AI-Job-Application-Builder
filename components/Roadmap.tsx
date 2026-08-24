@@ -46,7 +46,7 @@ export function Roadmap() {
         <p className="mt-2 text-muted">
           Everything below is live. Full details tracked in{" "}
           <a
-            href="https://github.com/AbhishekKumar1709/AI-Job-Application-Builder/blob/master/FEATURES.md"
+            href="https://github.com/AbhishekKumar1709/CVRespire/blob/master/FEATURES.md"
             className="underline underline-offset-2 hover:text-foreground"
             target="_blank"
             rel="noreferrer"

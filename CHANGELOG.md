@@ -1,5 +1,29 @@
 # Changelog
 
+## 2026-08-24 (5)
+
+### Fixed
+- Got `cvrespire.vercel.app` actually working as a public URL. The
+  earlier assumption (that the bare `<name>.vercel.app` domain was
+  unavailable because someone else owns it, or because team-scoped
+  projects can't get one at all) was wrong on both counts — it just
+  needed to be added explicitly via Domains → "Add Existing" in the
+  Vercel dashboard rather than relying on it being auto-assigned by
+  the project rename. Added it there, connected to Production; it's
+  now live and public (verified: real signup via curl returned 201,
+  zero console errors via Playwright, page title reads "CVRespire").
+  The old `ai-job-application-builder.vercel.app` domain is still
+  attached too and still resolves to the same deployment — left as-is,
+  harmless to keep both.
+- Updated the GitHub links that were still hardcoded to the old repo
+  path (`SiteHeader`, `SiteFooter`, `Roadmap`'s FEATURES.md link) to
+  `github.com/AbhishekKumar1709/CVRespire`, plus `DEVELOPMENT.md`'s
+  `cd` instruction (a fresh clone now creates a `CVRespire` folder, not
+  the old name) and `PROJECT_STATUS.md`'s current-URL reference. Left
+  historical "we tested against `ai-job-application-builder.vercel.app`"
+  narrative in `FEATURES.md`/`TESTING.md`/`docs/AI.md` alone — still
+  factually accurate since that URL still resolves to the same site.
+
 ## 2026-08-24 (4)
 
 ### Changed
