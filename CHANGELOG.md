@@ -1,5 +1,36 @@
 # Changelog
 
+## 2026-08-24 (2)
+
+### Added
+- Landing-page color redesign: new brand gradient (violet → pink →
+  orange) on the headline and primary CTA button, colorful gradient
+  background blobs, and 5 distinct icon hues for the feature row —
+  matching a reference image the user provided. The app-wide `accent`
+  token also changed (indigo → violet) so the rest of the app (forms,
+  buttons, links on profile/resumes/applications/etc.) feels
+  consistent with the new brand color, but deliberately stayed a single
+  color everywhere outside the landing page — a full multi-color reskin
+  of every form control would hurt readability on dense pages.
+- Rebuilt `HeroLaptop`: dark bezel with a camera dot, aluminum-shaded
+  base, a sidebar nav on the screen mirroring the app's real pages, and
+  a circular ATS-score gauge. Added a matching floating "ATS Score"
+  card beside the laptop.
+
+### Verified
+- The `94` shown on both the laptop's gauge and the floating card is a
+  real result, not invented: signed up a throwaway account, built a
+  generic sample profile (fake person, real-shaped resume — "Example
+  Tech Co", standard job titles/dates/skills) via the actual API, ran
+  the real `POST /api/resumes/:id/ats-check` endpoint (our live Gemini
+  integration) against it, and used that exact returned score. Test
+  account deleted afterward. Labeled "example result" everywhere it
+  appears — not an aggregate or per-visitor stat.
+- Playwright: screenshotted the laptop frozen at 0/45/90/180/270/315°
+  in light mode plus one dark-mode pass, zero console errors. Checked
+  the new violet accent renders correctly on `/login` and `/signup`
+  forms too. Lint, `tsc --noEmit`, and a full production build clean.
+
 ## 2026-08-24 (1)
 
 ### Added

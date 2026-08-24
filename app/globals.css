@@ -6,8 +6,25 @@
   --muted: #6b7280;
   --border: #e5e7eb;
   --surface: #f9fafb;
-  --accent: #4f46e5;
+  --accent: #7c3aed;
   --accent-foreground: #ffffff;
+
+  /* Landing-page-only brand gradient (violet -> pink -> orange) */
+  --brand-from: #7c3aed;
+  --brand-via: #ec4899;
+  --brand-to: #f97316;
+
+  /* Landing-page-only feature icon hues */
+  --icon-purple-bg: #ede9fe;
+  --icon-purple-text: #7c3aed;
+  --icon-green-bg: #dcfce7;
+  --icon-green-text: #16a34a;
+  --icon-orange-bg: #ffedd5;
+  --icon-orange-text: #ea580c;
+  --icon-pink-bg: #fce7f3;
+  --icon-pink-text: #db2777;
+  --icon-blue-bg: #dbeafe;
+  --icon-blue-text: #2563eb;
 }
 
 @theme inline {
@@ -18,6 +35,16 @@
   --color-surface: var(--surface);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-icon-purple-bg: var(--icon-purple-bg);
+  --color-icon-purple-text: var(--icon-purple-text);
+  --color-icon-green-bg: var(--icon-green-bg);
+  --color-icon-green-text: var(--icon-green-text);
+  --color-icon-orange-bg: var(--icon-orange-bg);
+  --color-icon-orange-text: var(--icon-orange-text);
+  --color-icon-pink-bg: var(--icon-pink-bg);
+  --color-icon-pink-text: var(--icon-pink-text);
+  --color-icon-blue-bg: var(--icon-blue-bg);
+  --color-icon-blue-text: var(--icon-blue-text);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -29,8 +56,19 @@
     --muted: #9ca3af;
     --border: #27272a;
     --surface: #131316;
-    --accent: #818cf8;
+    --accent: #a78bfa;
     --accent-foreground: #0a0a0a;
+
+    --icon-purple-bg: rgba(124, 58, 237, 0.2);
+    --icon-purple-text: #c4b5fd;
+    --icon-green-bg: rgba(22, 163, 74, 0.2);
+    --icon-green-text: #4ade80;
+    --icon-orange-bg: rgba(234, 88, 12, 0.2);
+    --icon-orange-text: #fdba74;
+    --icon-pink-bg: rgba(219, 39, 119, 0.2);
+    --icon-pink-text: #f9a8d4;
+    --icon-blue-bg: rgba(37, 99, 235, 0.2);
+    --icon-blue-text: #93c5fd;
   }
 }
 
@@ -50,7 +88,7 @@ body {
 }
 
 .hero-laptop-scene {
-  perspective: 1400px;
+  perspective: 1600px;
 }
 
 .hero-laptop-rotator {

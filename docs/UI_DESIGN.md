@@ -17,13 +17,35 @@ Defined as CSS variables in `app/globals.css`, exposed to Tailwind via
 | `muted` | `#6b7280` | `#9ca3af` |
 | `border` | `#e5e7eb` | `#27272a` |
 | `surface` | `#f9fafb` | `#131316` |
-| `accent` | `#4f46e5` (indigo-600) | `#818cf8` (indigo-400) |
+| `accent` | `#7c3aed` (violet-600) | `#a78bfa` (violet-400) |
 | `accent-foreground` | `#ffffff` | `#0a0a0a` |
 
 Used as Tailwind utilities: `bg-background`, `text-foreground`,
 `text-muted`, `border-border`, `bg-surface`, `bg-accent`,
-`text-accent-foreground`. Unchanged since the landing page was built —
-every page since reuses this same palette, no new tokens added.
+`text-accent-foreground`, everywhere in the app (forms, buttons, links,
+focus rings). `accent` changed from indigo to violet on 2026-08-24 to
+match the new landing-page brand gradient (see below) — deliberately
+kept as a single token app-wide rather than going multi-color
+everywhere, since a full-rainbow reskin of every form/button across
+profile, resumes, and applications would hurt readability on those
+dense, data-entry-heavy pages.
+
+Landing-page-only additional tokens (not used elsewhere in the app):
+
+| Token | Light | Dark |
+|---|---|---|
+| `--brand-from` / `--brand-via` / `--brand-to` | `#7c3aed` / `#ec4899` / `#f97316` | same (no dark override) |
+| `icon-purple-bg` / `icon-purple-text` | `#ede9fe` / `#7c3aed` | `rgba(124,58,237,.2)` / `#c4b5fd` |
+| `icon-green-bg` / `icon-green-text` | `#dcfce7` / `#16a34a` | `rgba(22,163,74,.2)` / `#4ade80` |
+| `icon-orange-bg` / `icon-orange-text` | `#ffedd5` / `#ea580c` | `rgba(234,88,12,.2)` / `#fdba74` |
+| `icon-pink-bg` / `icon-pink-text` | `#fce7f3` / `#db2777` | `rgba(219,39,119,.2)` / `#f9a8d4` |
+| `icon-blue-bg` / `icon-blue-text` | `#dbeafe` / `#2563eb` | `rgba(37,99,235,.2)` / `#93c5fd` |
+
+Used via Tailwind utilities (`bg-icon-purple-bg`, `text-icon-purple-text`,
+etc., generated through `@theme inline` in `globals.css`) for the
+Hero's 5 feature icons, and the brand gradient via arbitrary-value
+utilities (`from-[var(--brand-from)]` etc.) for the headline and
+primary CTA button.
 
 ## Typography
 
@@ -82,17 +104,21 @@ Landing page:
   line), subheadline, two CTAs, and a row of 5 feature icons (inline
   SVGs, single-color using the existing `accent` token — no new color
   hues were introduced)
-- `HeroLaptop` — a real 3D CSS laptop (screen + hinge + keyboard base,
-  built from plain positioned divs with `rotateX`/`rotateY` and
-  `preserve-3d`, no image assets or 3D library) that continuously spins
-  a full 360° (`@keyframes hero-laptop-spin` in `globals.css`, 18s
-  linear loop). The screen shows the same skeleton-bar mockup content
-  as before (no invented numbers). Respects
-  `prefers-reduced-motion: reduce` (animation disabled). Verified at
-  multiple fixed rotation angles via Playwright (0/30/90/120/180/270°)
-  to confirm the geometry reads correctly all the way around, plus a
-  live-animation check (two screenshots ~2s apart differ, confirming it
-  actually runs) and a dark-mode check.
+- `HeroLaptop` — a real 3D CSS laptop (dark bezel with camera dot,
+  aluminum-shaded keyboard deck, screen + hinge + base built from plain
+  positioned divs with `rotateX`/`rotateY` and `preserve-3d`, no image
+  assets or 3D library) that continuously spins a full 360°
+  (`@keyframes hero-laptop-spin` in `globals.css`, 18s linear loop).
+  Respects `prefers-reduced-motion: reduce` (animation disabled).
+  Screen shows a sidebar nav (mirrors the app's real pages), a resume
+  skeleton panel, and a small circular ATS-score gauge; a matching
+  floating card sits beside the laptop. Both show `94` — the actual
+  result of running our real ATS-check feature (Gemini) once against
+  one fixed, generic sample resume, not an invented statistic; labeled
+  "example result". See `CHANGELOG.md` for how that number was
+  produced. Verified at multiple fixed rotation angles via Playwright
+  (0/45/90/180/270/315°) to confirm the geometry reads correctly all
+  the way around, plus a live-animation check and a dark-mode check.
 - `Roadmap` — grid of feature cards, each with a "Live" badge (every
   item is live now; the type only allows that one status)
 - `SiteFooter` — bottom bar
