@@ -1,4 +1,4 @@
-// Prisma schema for AI Job Application Builder
+// Prisma schema for CVBreathe
 // Postgres (hosted on Neon) in every environment — see DATABASE.md.
 
 generator client {

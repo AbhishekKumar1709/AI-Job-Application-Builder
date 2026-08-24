@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-08-24 (3)
+
+### Changed
+- Renamed the site's display name from "AI Job Application Builder" to
+  "CVBreathe" (user's choice) — updated everywhere the name is shown
+  to a visitor or reader: `SiteHeader`, `AppHeader`, `SiteFooter`, the
+  page `<title>`/metadata, `README.md`'s title, and the top comment in
+  `schema.prisma`. Deliberately left unchanged: the GitHub repo name,
+  the Vercel deployment URL (still
+  `ai-job-application-builder.vercel.app`), the local folder name, and
+  `package.json`'s npm package name — renaming any of those is a
+  separate, bigger operation (would break the current bookmarked URL)
+  that wasn't asked for.
+
 ## 2026-08-24 (2)
 
 ### Added

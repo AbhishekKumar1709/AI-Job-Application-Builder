@@ -13,7 +13,7 @@ export function AppHeader() {
           href="/"
           className="text-sm font-semibold tracking-tight hover:text-accent"
         >
-          AI Job Application Builder
+          CVBreathe
         </Link>
         <nav className="flex items-center gap-4 text-sm text-muted">
           {status === "authenticated" ? (

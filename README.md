@@ -1,4 +1,4 @@
-# AI Job Application Builder
+# CVBreathe
 
 An AI-assisted tool for building resumes and cover letters, checking ATS
 compatibility, matching resumes to job descriptions, and tracking job
