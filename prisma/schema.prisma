@@ -1,4 +1,4 @@
-// Prisma schema for CVBreathe
+// Prisma schema for CVRespire
 // Postgres (hosted on Neon) in every environment — see DATABASE.md.
 
 generator client {

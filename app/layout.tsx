@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CVBreathe",
+  title: "CVRespire",
   description:
     "Build resumes and cover letters, check ATS compatibility, and track job applications — with AI assistance.",
 };

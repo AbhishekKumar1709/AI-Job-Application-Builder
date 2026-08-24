@@ -1,5 +1,26 @@
 # Changelog
 
+## 2026-08-24 (4)
+
+### Changed
+- Renamed the site again, this time to "CVRespire" — display name
+  ("CVBreathe", chosen shortly before, only lived for a few hours)
+  updated in the same places as the earlier rename. Also renamed the
+  GitHub repo (`AbhishekKumar1709/CVRespire`, local git remote updated
+  to match) and the Vercel project (`cvrespire`).
+- Found and worked around a real constraint while renaming: Vercel's
+  free `<project>.vercel.app` subdomains are global across all Vercel
+  accounts, not scoped per-user. `cvbreathe.vercel.app` turned out to
+  already be taken by someone else — Vercel silently fell back to a
+  team-scoped domain (`cvbreathe-abhishekkumar1709s-projects.vercel.app`)
+  which is blocked behind Vercel's SSO login wall and not usable as a
+  public URL. Checked `cvrespire.vercel.app` was unclaimed (no active
+  deployment responding there) before renaming to it this time.
+- Updated `NEXTAUTH_URL` in Vercel production to
+  `https://cvrespire.vercel.app` (auth/email links were still pointing
+  at the pre-rename URL otherwise) and redeployed so the new domain
+  actually gets aliased to a live deployment.
+
 ## 2026-08-24 (3)
 
 ### Changed
