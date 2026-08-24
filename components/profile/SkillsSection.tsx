@@ -54,7 +54,7 @@ export function SkillsSection({
   }
 
   return (
-    <section>
+    <section className="rounded-xl border border-border bg-surface p-6">
       <h2 className="text-lg font-semibold">Skills</h2>
       <form onSubmit={handleAdd} className="mt-4 flex gap-2">
         <input
@@ -64,8 +64,13 @@ export function SkillsSection({
           onChange={(e) => setName(e.target.value)}
           className={`${inputClass} flex-1`}
         />
-        <button type="submit" disabled={saving} className={buttonClass}>
-          Add
+        <button
+          type="submit"
+          disabled={saving}
+          aria-label="Add skill"
+          className={`${buttonClass} flex h-9 w-9 items-center justify-center p-0 text-lg leading-none`}
+        >
+          +
         </button>
       </form>
 
@@ -73,13 +78,13 @@ export function SkillsSection({
         {skills.map((skill) => (
           <span
             key={skill.id}
-            className="flex items-center gap-2 rounded-full border border-border px-3 py-1 text-sm"
+            className="flex items-center gap-2 rounded-full bg-icon-purple-bg px-3 py-1 text-sm text-icon-purple-text"
           >
             {skill.name}
             <button
               onClick={() => handleDelete(skill.id)}
               aria-label={`Remove ${skill.name}`}
-              className="text-muted hover:text-red-500"
+              className="hover:text-red-500"
             >
               ×
             </button>

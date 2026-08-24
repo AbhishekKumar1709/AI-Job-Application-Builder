@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function SiteHeader() {
   return (
@@ -8,6 +9,7 @@ export function SiteHeader() {
           CVRespire
         </Link>
         <nav className="flex items-center gap-6 text-sm text-muted">
+          <ThemeToggle />
           <a href="#roadmap" className="hover:text-foreground">
             Features
           </a>

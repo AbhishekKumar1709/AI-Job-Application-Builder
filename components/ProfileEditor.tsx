@@ -74,47 +74,49 @@ export function ProfileEditor() {
     <div className="mt-8 flex flex-col gap-12">
       {error && <p className="text-sm text-red-500">{error}</p>}
 
-      <section>
+      <section className="rounded-xl border border-border bg-surface p-6">
         <h2 className="text-lg font-semibold">Basic info</h2>
         <form onSubmit={handleSaveBasic} className="mt-4 flex flex-col gap-4">
-          <label className="flex flex-col gap-1 text-sm">
-            Headline
-            <input
-              type="text"
-              placeholder="e.g. Senior Frontend Engineer"
-              value={basic.headline ?? ""}
-              onChange={(e) => setBasic({ ...basic, headline: e.target.value })}
-              className={inputClass}
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            Phone
-            <input
-              type="tel"
-              value={basic.phone ?? ""}
-              onChange={(e) => setBasic({ ...basic, phone: e.target.value })}
-              className={inputClass}
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            Location
-            <input
-              type="text"
-              placeholder="e.g. Bengaluru, India"
-              value={basic.location ?? ""}
-              onChange={(e) => setBasic({ ...basic, location: e.target.value })}
-              className={inputClass}
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            Summary
-            <textarea
-              rows={4}
-              value={basic.summary ?? ""}
-              onChange={(e) => setBasic({ ...basic, summary: e.target.value })}
-              className={inputClass}
-            />
-          </label>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <label className="flex flex-col gap-1 text-sm">
+              Headline
+              <input
+                type="text"
+                placeholder="e.g. Senior Frontend Engineer"
+                value={basic.headline ?? ""}
+                onChange={(e) => setBasic({ ...basic, headline: e.target.value })}
+                className={inputClass}
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-sm">
+              Phone
+              <input
+                type="tel"
+                value={basic.phone ?? ""}
+                onChange={(e) => setBasic({ ...basic, phone: e.target.value })}
+                className={inputClass}
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-sm sm:col-span-2">
+              Location
+              <input
+                type="text"
+                placeholder="e.g. Bengaluru, India"
+                value={basic.location ?? ""}
+                onChange={(e) => setBasic({ ...basic, location: e.target.value })}
+                className={inputClass}
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-sm sm:col-span-2">
+              Summary
+              <textarea
+                rows={4}
+                value={basic.summary ?? ""}
+                onChange={(e) => setBasic({ ...basic, summary: e.target.value })}
+                className={inputClass}
+              />
+            </label>
+          </div>
           <button type="submit" disabled={savingBasic} className={`${buttonClass} self-start`}>
             {savingBasic ? "Saving…" : "Save"}
           </button>

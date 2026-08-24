@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { EducationForm, type EducationFormState } from "./EducationForm";
-import { secondaryButtonClass, toMonthInput, fromMonthInput, type Education } from "./types";
+import { secondaryButtonClass, toMonthInput, fromMonthInput, avatarColor, type Education } from "./types";
 
 const emptyForm: EducationFormState = {
   institution: "",
@@ -127,7 +127,7 @@ export function EducationSection({
   }
 
   return (
-    <section>
+    <section className="rounded-xl border border-border bg-surface p-6">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Education</h2>
         {editingId === null && (
@@ -142,44 +142,55 @@ export function EducationSection({
           editingId === edu.id ? (
             <EducationForm key={edu.id} form={form} setForm={setForm} onSubmit={handleSubmit} onCancel={() => setEditingId(null)} saving={saving} />
           ) : (
-            <div key={edu.id} className="rounded-lg border border-border p-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="font-medium">
-                    {edu.institution}
-                    {edu.degree ? ` · ${edu.degree}` : ""}
-                    {edu.fieldOfStudy ? `, ${edu.fieldOfStudy}` : ""}
-                  </p>
-                  <p className="text-xs text-muted">
-                    {toMonthInput(edu.startDate) || "—"} – {toMonthInput(edu.endDate) || "—"}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleMove(index, -1)}
-                    disabled={index === 0}
-                    aria-label="Move up"
-                    className={secondaryButtonClass}
-                  >
-                    ↑
-                  </button>
-                  <button
-                    onClick={() => handleMove(index, 1)}
-                    disabled={index === education.length - 1}
-                    aria-label="Move down"
-                    className={secondaryButtonClass}
-                  >
-                    ↓
-                  </button>
-                  <button onClick={() => startEdit(edu)} className={secondaryButtonClass}>
-                    Edit
-                  </button>
-                  <button onClick={() => handleDelete(edu.id)} className={secondaryButtonClass}>
-                    Delete
-                  </button>
-                </div>
+            <div
+              key={edu.id}
+              className="flex gap-4 rounded-xl border border-border bg-background p-4 transition-colors hover:border-accent/50"
+            >
+              <div
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${avatarColor(index).bg} ${avatarColor(index).text}`}
+                aria-hidden="true"
+              >
+                {edu.institution.charAt(0).toUpperCase()}
               </div>
-              {edu.description && <p className="mt-2 text-sm text-muted">{edu.description}</p>}
+              <div className="min-w-0 flex-1">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="font-medium">
+                      {edu.institution}
+                      {edu.degree ? ` · ${edu.degree}` : ""}
+                      {edu.fieldOfStudy ? `, ${edu.fieldOfStudy}` : ""}
+                    </p>
+                    <p className="text-xs text-muted">
+                      {toMonthInput(edu.startDate) || "—"} – {toMonthInput(edu.endDate) || "—"}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 gap-2">
+                    <button
+                      onClick={() => handleMove(index, -1)}
+                      disabled={index === 0}
+                      aria-label="Move up"
+                      className={secondaryButtonClass}
+                    >
+                      ↑
+                    </button>
+                    <button
+                      onClick={() => handleMove(index, 1)}
+                      disabled={index === education.length - 1}
+                      aria-label="Move down"
+                      className={secondaryButtonClass}
+                    >
+                      ↓
+                    </button>
+                    <button onClick={() => startEdit(edu)} className={secondaryButtonClass}>
+                      Edit
+                    </button>
+                    <button onClick={() => handleDelete(edu.id)} className={secondaryButtonClass}>
+                      Delete
+                    </button>
+                  </div>
+                </div>
+                {edu.description && <p className="mt-2 text-sm text-muted">{edu.description}</p>}
+              </div>
             </div>
           ),
         )}

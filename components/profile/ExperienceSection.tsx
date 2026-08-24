@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { ExperienceForm, type ExperienceFormState } from "./ExperienceForm";
-import { secondaryButtonClass, toMonthInput, fromMonthInput, type Experience } from "./types";
+import { secondaryButtonClass, toMonthInput, fromMonthInput, avatarColor, type Experience } from "./types";
 
 const emptyForm: ExperienceFormState = {
   company: "",
@@ -130,7 +130,7 @@ export function ExperienceSection({
   }
 
   return (
-    <section>
+    <section className="rounded-xl border border-border bg-surface p-6">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Experience</h2>
         {editingId === null && (
@@ -145,43 +145,54 @@ export function ExperienceSection({
           editingId === exp.id ? (
             <ExperienceForm key={exp.id} form={form} setForm={setForm} onSubmit={handleSubmit} onCancel={() => setEditingId(null)} saving={saving} />
           ) : (
-            <div key={exp.id} className="rounded-lg border border-border p-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="font-medium">
-                    {exp.title} · {exp.company}
-                  </p>
-                  <p className="text-xs text-muted">
-                    {exp.location ? `${exp.location} · ` : ""}
-                    {toMonthInput(exp.startDate)} – {exp.current ? "Present" : toMonthInput(exp.endDate) || "—"}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleMove(index, -1)}
-                    disabled={index === 0}
-                    aria-label="Move up"
-                    className={secondaryButtonClass}
-                  >
-                    ↑
-                  </button>
-                  <button
-                    onClick={() => handleMove(index, 1)}
-                    disabled={index === experiences.length - 1}
-                    aria-label="Move down"
-                    className={secondaryButtonClass}
-                  >
-                    ↓
-                  </button>
-                  <button onClick={() => startEdit(exp)} className={secondaryButtonClass}>
-                    Edit
-                  </button>
-                  <button onClick={() => handleDelete(exp.id)} className={secondaryButtonClass}>
-                    Delete
-                  </button>
-                </div>
+            <div
+              key={exp.id}
+              className="flex gap-4 rounded-xl border border-border bg-background p-4 transition-colors hover:border-accent/50"
+            >
+              <div
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${avatarColor(index).bg} ${avatarColor(index).text}`}
+                aria-hidden="true"
+              >
+                {exp.company.charAt(0).toUpperCase()}
               </div>
-              {exp.description && <p className="mt-2 text-sm text-muted">{exp.description}</p>}
+              <div className="min-w-0 flex-1">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="font-medium">
+                      {exp.title} · {exp.company}
+                    </p>
+                    <p className="text-xs text-muted">
+                      {exp.location ? `${exp.location} · ` : ""}
+                      {toMonthInput(exp.startDate)} – {exp.current ? "Present" : toMonthInput(exp.endDate) || "—"}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 gap-2">
+                    <button
+                      onClick={() => handleMove(index, -1)}
+                      disabled={index === 0}
+                      aria-label="Move up"
+                      className={secondaryButtonClass}
+                    >
+                      ↑
+                    </button>
+                    <button
+                      onClick={() => handleMove(index, 1)}
+                      disabled={index === experiences.length - 1}
+                      aria-label="Move down"
+                      className={secondaryButtonClass}
+                    >
+                      ↓
+                    </button>
+                    <button onClick={() => startEdit(exp)} className={secondaryButtonClass}>
+                      Edit
+                    </button>
+                    <button onClick={() => handleDelete(exp.id)} className={secondaryButtonClass}>
+                      Delete
+                    </button>
+                  </div>
+                </div>
+                {exp.description && <p className="mt-2 text-sm text-muted">{exp.description}</p>}
+              </div>
             </div>
           ),
         )}

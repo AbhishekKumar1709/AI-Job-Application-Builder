@@ -23,7 +23,7 @@ export default async function ResumesPage() {
           </Link>
         </div>
         <p className="mt-1 text-sm text-muted">
-          Each resume starts as a copy of your master profile, then you can
+          Each resume starts as a copy of your profile, then you can
           tailor it independently for a specific application.
         </p>
 

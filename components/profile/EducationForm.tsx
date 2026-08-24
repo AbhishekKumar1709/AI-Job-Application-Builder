@@ -26,7 +26,7 @@ export function EducationForm({
   saving: boolean;
 }) {
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-3 rounded-lg border border-border p-4">
+    <form onSubmit={onSubmit} className="flex flex-col gap-3 rounded-xl border border-border bg-background p-4">
       <input
         type="text"
         required

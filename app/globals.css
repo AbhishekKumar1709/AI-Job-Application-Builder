@@ -50,7 +50,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --background: #0a0a0a;
     --foreground: #ededed;
     --muted: #9ca3af;
@@ -70,6 +70,28 @@
     --icon-blue-bg: rgba(37, 99, 235, 0.2);
     --icon-blue-text: #93c5fd;
   }
+}
+
+/* Explicit manual override (via ThemeToggle) wins regardless of system preference */
+:root[data-theme="dark"] {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --muted: #9ca3af;
+  --border: #27272a;
+  --surface: #131316;
+  --accent: #a78bfa;
+  --accent-foreground: #0a0a0a;
+
+  --icon-purple-bg: rgba(124, 58, 237, 0.2);
+  --icon-purple-text: #c4b5fd;
+  --icon-green-bg: rgba(22, 163, 74, 0.2);
+  --icon-green-text: #4ade80;
+  --icon-orange-bg: rgba(234, 88, 12, 0.2);
+  --icon-orange-text: #fdba74;
+  --icon-pink-bg: rgba(219, 39, 119, 0.2);
+  --icon-pink-text: #f9a8d4;
+  --icon-blue-bg: rgba(37, 99, 235, 0.2);
+  --icon-blue-text: #93c5fd;
 }
 
 body {

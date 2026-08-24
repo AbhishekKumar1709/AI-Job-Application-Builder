@@ -1,5 +1,49 @@
 # Changelog
 
+## 2026-08-24 (7)
+
+### Added
+- Manual light/dark theme toggle (`ThemeToggle`, in both headers) — the
+  site previously only followed the OS `prefers-color-scheme` setting
+  with no way to override it. Stored in `localStorage`, applied via a
+  `data-theme` attribute set before first paint (inline script in
+  `app/layout.tsx`) to avoid a flash of the wrong theme.
+- Renamed "Master profile" to "Profile" everywhere it's shown
+  (`/profile`'s heading, the dashboard's "Edit profile" button, the
+  resumes page's description text).
+- Redesigned the profile page: Basic Info now uses a 2-column layout
+  (was one narrow centered column with a lot of wasted space on wider
+  screens); page widened from `max-w-2xl` to `max-w-4xl`. Experience
+  and Education entries now show a colored initial-letter avatar
+  circle on the left (color cycles through the same 5 brand hues used
+  on the landing page), in a "modern" bordered card with a hover
+  effect. Skills' "Add" button restyled as a compact "+" icon button;
+  skill pills recolored to use the brand purple tint instead of plain
+  bordered pills. All four profile sections (Basic Info, Experience,
+  Education, Skills) now share a consistent `bg-surface` card wrapper.
+- Dashboard stat tiles (Resumes/Applications/Interviewing/Offers) now
+  each show a colored icon (same 4-of-5 brand hues), redesigned as
+  cards instead of plain bordered boxes; page widened slightly
+  (`max-w-2xl` → `max-w-3xl`) to fit the icons comfortably.
+
+### Fixed
+- The inline theme-init script caused a real hydration mismatch
+  warning (server-rendered `<html>` has no `data-theme`, the script
+  adds one before React hydrates) — fixed with `suppressHydrationWarning`
+  on `<html>`, the standard pattern for this exact case. Caught via
+  Playwright console-error monitoring, not just visual inspection.
+
+### Verified
+- Playwright: signed up a real test account, added a real experience
+  entry, education entry, and skill through the actual UI (not
+  seeded directly in the database), confirmed all three render with
+  the new avatar/card/pill styling, toggled dark mode and back,
+  checked both themes render correctly with zero console errors. Two
+  stray test accounts left over from earlier ad-hoc testing sessions
+  (found while checking for leftovers, not created by this work) were
+  also cleaned up. Lint, `tsc --noEmit`, and a full production build
+  all clean.
+
 ## 2026-08-24 (6)
 
 ### Added

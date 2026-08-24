@@ -182,13 +182,23 @@ viewport. This remains a real gap, not yet closed.
 
 ## Dark mode
 
-Implemented via `prefers-color-scheme: dark` media query in
-`app/globals.css` (system-driven, no manual toggle) — unchanged since
-first built. Verified visually across the landing page originally; not
-re-verified in dark mode specifically for every page added since (Playwright
-testing used the default light-appearing screenshot rendering throughout
-this project's build-out), though all later pages use the same CSS
-variables so should inherit the same behavior.
+Manual toggle (`components/ThemeToggle.tsx`, in both `SiteHeader` and
+`AppHeader`) added 2026-08-24, on top of the original system-driven
+`prefers-color-scheme: dark` media query. Preference stored in
+`localStorage` (`cvrespire-theme`) and applied via a `data-theme`
+attribute on `<html>`, which `globals.css` gives priority over the
+media query (`:root:not([data-theme="light"])` for system dark,
+`:root[data-theme="dark"]` for the explicit override — both win
+correctly in either direction). An inline script in the `<head>`
+(`app/layout.tsx`) applies the stored theme before first paint to
+avoid a flash of the wrong theme; `<html>` carries
+`suppressHydrationWarning` since that script intentionally makes the
+server-rendered and client-hydrated markup differ on that one
+attribute (the standard, expected pattern for this — verified the
+alternative, an unsuppressed mismatch warning, actually appears
+without it, then confirmed it's gone with it).
+Verified via Playwright: toggled light→dark→light on both the
+dashboard and profile pages, screenshotted each, zero console errors.
 
 ## Accessibility
 

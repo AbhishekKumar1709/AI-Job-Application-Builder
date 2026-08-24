@@ -37,3 +37,15 @@ export function toMonthInput(value: string | null): string {
 export function fromMonthInput(value: string): string | null {
   return value ? `${value}-01` : null;
 }
+
+const AVATAR_COLORS = [
+  { bg: "bg-icon-purple-bg", text: "text-icon-purple-text" },
+  { bg: "bg-icon-green-bg", text: "text-icon-green-text" },
+  { bg: "bg-icon-orange-bg", text: "text-icon-orange-text" },
+  { bg: "bg-icon-pink-bg", text: "text-icon-pink-text" },
+  { bg: "bg-icon-blue-bg", text: "text-icon-blue-text" },
+];
+
+export function avatarColor(index: number) {
+  return AVATAR_COLORS[index % AVATAR_COLORS.length];
+}

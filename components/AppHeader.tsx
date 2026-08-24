@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function AppHeader() {
   const { status } = useSession();
@@ -16,6 +17,7 @@ export function AppHeader() {
           CVRespire
         </Link>
         <nav className="flex items-center gap-4 text-sm text-muted">
+          <ThemeToggle />
           {status === "authenticated" ? (
             <>
               <Link href="/dashboard" className="hover:text-foreground">
