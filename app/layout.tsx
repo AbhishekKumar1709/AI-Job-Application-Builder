@@ -13,10 +13,40 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const SITE_URL = "https://cvrespire.vercel.app";
+const DESCRIPTION =
+  "Build resumes and cover letters, check ATS compatibility, and track job applications — with AI assistance.";
+
 export const metadata: Metadata = {
-  title: "CVRespire",
-  description:
-    "Build resumes and cover letters, check ATS compatibility, and track job applications — with AI assistance.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "CVRespire",
+    template: "%s — CVRespire",
+  },
+  description: DESCRIPTION,
+  keywords: [
+    "resume builder",
+    "AI resume",
+    "cover letter generator",
+    "ATS checker",
+    "job application tracker",
+  ],
+  openGraph: {
+    title: "CVRespire",
+    description: DESCRIPTION,
+    url: SITE_URL,
+    siteName: "CVRespire",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "CVRespire",
+    description: DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -1,5 +1,29 @@
 # Changelog
 
+## 2026-08-24 (6)
+
+### Added
+- Basic SEO/discoverability setup, so the site can actually be found on
+  Google (previously had none — no sitemap, no robots.txt, generic
+  metadata): `app/sitemap.ts` (home, `/login`, `/signup`), `app/robots.ts`
+  (allows crawling, disallows authenticated routes and `/api/`, points
+  at the sitemap), and richer metadata in `app/layout.tsx`
+  (`metadataBase`, Open Graph tags, Twitter card, keywords, explicit
+  `index, follow`). All free — no paid SEO tools involved.
+
+### Verified
+- `curl localhost:1001/sitemap.xml` and `/robots.txt` both render
+  correctly; confirmed all the new meta tags (OG, Twitter, keywords,
+  robots) appear in the rendered homepage HTML. Lint, `tsc --noEmit`,
+  and a full production build all clean — `/sitemap.xml` and
+  `/robots.txt` both compile as static routes.
+
+### Known gap
+- This alone does not get the site indexed — Google still needs to be
+  told to look (Search Console verification + sitemap submission,
+  requires the user's Google account) and indexing takes days to
+  weeks after that. Not done yet.
+
 ## 2026-08-24 (5)
 
 ### Fixed
