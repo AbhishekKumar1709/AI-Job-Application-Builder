@@ -124,16 +124,24 @@ Landing page:
 - `SiteFooter` — bottom bar
 
 App-wide navigation:
-- `AppHeader` (client component, `components/AppHeader.tsx`) — used on
-  every page that isn't the landing page (auth pages: login, signup,
-  forgot/reset password, verify-email; authenticated pages: dashboard,
-  profile, resumes, resume editor/preview, applications, account).
-  Logo links to `/`; right side shows Log in/Sign up when signed out or
-  Dashboard/Sign out (via `useSession()`) when signed in. Added to close
-  a real gap — several pages previously had no way back to the site's
-  home page at all. Each page still keeps its own more-specific
-  secondary link too (e.g. "Back to profile") where one makes sense.
-  Replaced the old page-local `SignOutButton` (deleted, now unused).
+- `AppHeader` (client component, `components/AppHeader.tsx`) — used only
+  on the un-authenticated flow pages now: login, signup, forgot/reset
+  password, verify-email. Logo links to `/`; right side shows Log
+  in/Sign up when signed out or Dashboard/Sign out when signed in (a
+  signed-in user can land on these pages transiently, e.g. via a stale
+  bookmark). Replaced the old page-local `SignOutButton` (deleted).
+- `AppSidebar` (client component, `components/AppSidebar.tsx`) — used on
+  every genuinely authenticated page (dashboard, profile, resumes,
+  resume editor/preview, applications, account), replacing `AppHeader`
+  there as of the 2026-08-24 internal-UI redesign. Left sidebar on
+  `sm:` and up (logo, 5 nav links with active-state highlighting via
+  `usePathname()`, theme toggle + sign out pinned at the bottom); on
+  mobile, a top bar (logo, theme toggle, hamburger) that reveals the
+  same links as a dropdown. "AI Tools" was deliberately not given its
+  own nav entry/route — it only operates on a specific resume (calls
+  `/api/resumes/:id/optimize` etc.), so it's folded into "Resumes"
+  rather than inventing a destination that would need a resume picked
+  first anyway.
 
 Shared editing pattern (profile + every resume, see
 [ARCHITECTURE.md](./ARCHITECTURE.md)):
@@ -141,12 +149,79 @@ Shared editing pattern (profile + every resume, see
   EducationSection, SkillsSection, types}.tsx` — one list-and-form
   implementation per entity type, parameterized by an `apiBase` prop so
   it works against both `/api/profile/*` and `/api/resumes/:id/*`
-  without duplication. Includes up/down reorder buttons per entry.
+  without duplication. Includes up/down reorder buttons per entry,
+  rendered as a card with a colored initial-letter avatar on the left
+  (color cycles through the 5 brand hues by list position).
 
-Page-level components: `ProfileEditor`, `ResumeEditor` (+ template
-selector), `ResumeList` (+ search), `ResumePreview` (classic + compact
-templates), `ResumeImport`, `ResumeAITools`, `ApplicationsList` (+
-search/status filter), `AccountSettings`.
+Page-level components: `ProfileEditor` (now a 4-step wizard — see
+below), `ResumeEditor` (template picker promoted to its own card at
+the top, auto-saves on click), `ResumeList` (+ search), `ResumePreview`
+(classic + compact templates), `ResumeImport`, `ResumeAITools` (now 4
+clickable tool cards — see below), `ApplicationsList` (now a table — see
+below), `AccountSettings` (now grouped into 4 labeled sections — see
+below).
+
+## Internal UI redesign (2026-08-24)
+
+A user-provided design brief asked for the authenticated/internal app
+(everything behind login) to be simplified into a "premium SaaS
+dashboard" feel, explicitly *not* touching the public landing page,
+branding, backend, APIs, database, auth, or any existing route/feature.
+Implemented without changing any route or business logic:
+
+- **Dashboard** (`app/dashboard/page.tsx`) — greeting header ("Good to
+  see you back 👋" + a real, computed subtitle — no fake copy), the
+  existing 4 stat cards, a new "Quick actions" grid (Create resume,
+  Check ATS, Generate cover letter, Add application — the two AI
+  actions link to the most-recently-updated resume if one exists, else
+  to the resume list), a "Recent activity" feed built from real
+  `Resume.updatedAt`/`Application.updatedAt` rows (empty state, not
+  fake data, when there's nothing yet), and an "Application progress"
+  mini funnel (Applied/Interviewing/Offers bars) computed from the same
+  real status counts already used for the stat cards.
+- **Profile** (`ProfileEditor.tsx`) — turned into a 4-step wizard
+  (Basic Info → Experience → Education → Skills) with a numbered,
+  clickable step pill row at the top; Basic Info's Save button now
+  reads "Save & Continue" and advances the step. All existing fields,
+  the import link, and every list's add/edit/delete/reorder behavior
+  are unchanged — this is a presentation change over the same
+  `ProfileEditor` state and API calls.
+- **Resume editor** (`ResumeEditor.tsx`) — the template `<select>` was
+  pulled out of the Basic Info form into its own card of two large
+  clickable options at the top of the page, auto-saving on click (a
+  dedicated `PATCH { template }` call) instead of requiring the main
+  Save button. The resume edit page (`app/resumes/[id]/page.tsx`) also
+  gained an Edit/"Preview & Export" tab control at the top; edit and
+  preview remain separate routes (merging them into one live
+  split-view page would be an architecture change, not a reskin, and
+  risked the PDF export flow), so the tabs just make the existing
+  2-page flow read as one obvious workflow.
+- **AI Tools** (`ResumeAITools.tsx`) — the four AI features (previously
+  four always-expanded stacked sections) are now 4 clickable cards
+  under an "AI Assistant" heading (icon, one-line description, active
+  state on click); clicking reveals that tool's existing, unmodified
+  UI below. "Match Job" and "Cover Letter" open the same panel since
+  they share one component and state (a job description input feeding
+  both) — kept as-is rather than duplicating that input to force a
+  strict 1-card-1-tool mapping.
+- **Applications** (`ApplicationsList.tsx`) — the bordered-card list
+  became a real `<table>` (Company/Role/Status/Date/Resume/Cover
+  Letter/Actions), wrapped in `overflow-x-auto` for narrow screens.
+  Status is now a colored pill (mapped from the existing enum, one new
+  one-off `bg-red-500/10 text-red-500` pair for Rejected since no
+  "icon-red" token existed). "Add application" became a prominent "+
+  Add Application" button. The free-text notes field is still fully
+  editable via the same form, just not shown in the compact table row.
+- **Account settings** (`AccountSettings.tsx`) — regrouped into 4
+  labeled sections (Account, Security, Data / Privacy, Danger Zone)
+  with a small muted label above each card; Danger Zone's card gets a
+  red border. Same forms/handlers as before, just organized.
+
+All of the above reuses the existing color tokens (`bg-icon-*`,
+`--accent`, `--brand-*`) introduced for the landing page — no new
+colors added for the internal redesign, per the brief's "use the
+existing identity subtly" direction. The 360° spinning laptop stays
+landing-page-only, as explicitly requested.
 
 ## Resume templates
 
@@ -174,11 +249,17 @@ None implemented.
 
 ## Responsive breakpoints
 
-Tailwind defaults (`sm:` etc.), used sparingly (e.g. two-column grids on
-the landing page roadmap and some forms collapse to one column below
-`sm`). No dedicated mobile-device testing has been done — every visual
-verification in this project (Playwright screenshots) has used a desktop
-viewport. This remains a real gap, not yet closed.
+Tailwind defaults (`sm:` etc.). `AppSidebar` is the first component with
+real, verified mobile behavior: a 390×844 (iPhone-sized) Playwright
+screenshot of the dashboard and the opened mobile nav dropdown, both
+confirmed rendering correctly with zero console errors, as part of the
+2026-08-24 internal-UI redesign. The rest of the app (landing page,
+auth forms, resume editor, applications table) still only has desktop
+verification — the applications table specifically uses
+`overflow-x-auto` for narrow screens rather than a verified mobile card
+layout, so that one's responsive *in principle* (won't visually break)
+but not yet screenshot-verified on a small viewport. This remains a
+partial gap, narrower than before but not fully closed.
 
 ## Dark mode
 

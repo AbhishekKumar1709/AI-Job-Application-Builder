@@ -1,9 +1,8 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { authOptions } from "@/lib/auth";
 import { ResumeList } from "@/components/ResumeList";
-import { AppHeader } from "@/components/AppHeader";
+import { AppSidebar } from "@/components/AppSidebar";
 
 export default async function ResumesPage() {
   const session = await getServerSession(authOptions);
@@ -13,15 +12,10 @@ export default async function ResumesPage() {
   }
 
   return (
-    <div className="flex min-h-full flex-1 flex-col">
-      <AppHeader />
-      <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-6 py-24">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold tracking-tight">Resumes</h1>
-          <Link href="/dashboard" className="text-sm text-accent hover:underline">
-            Back to dashboard
-          </Link>
-        </div>
+    <div className="flex min-h-full flex-1 flex-col sm:flex-row">
+      <AppSidebar />
+      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-10 sm:py-12">
+        <h1 className="text-2xl font-semibold tracking-tight">Resumes</h1>
         <p className="mt-1 text-sm text-muted">
           Each resume starts as a copy of your profile, then you can
           tailor it independently for a specific application.

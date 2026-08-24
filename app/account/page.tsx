@@ -1,9 +1,8 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { authOptions } from "@/lib/auth";
 import { AccountSettings } from "@/components/AccountSettings";
-import { AppHeader } from "@/components/AppHeader";
+import { AppSidebar } from "@/components/AppSidebar";
 
 export default async function AccountPage() {
   const session = await getServerSession(authOptions);
@@ -13,15 +12,10 @@ export default async function AccountPage() {
   }
 
   return (
-    <div className="flex min-h-full flex-1 flex-col">
-      <AppHeader />
-      <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-6 py-24">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold tracking-tight">Account settings</h1>
-          <Link href="/dashboard" className="text-sm text-accent hover:underline">
-            Back to dashboard
-          </Link>
-        </div>
+    <div className="flex min-h-full flex-1 flex-col sm:flex-row">
+      <AppSidebar />
+      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-10 sm:py-12">
+        <h1 className="text-2xl font-semibold tracking-tight">Account settings</h1>
 
         <AccountSettings />
       </main>

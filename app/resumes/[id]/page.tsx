@@ -4,7 +4,7 @@ import Link from "next/link";
 import { authOptions } from "@/lib/auth";
 import { ResumeEditor } from "@/components/ResumeEditor";
 import { ResumeAITools } from "@/components/ResumeAITools";
-import { AppHeader } from "@/components/AppHeader";
+import { AppSidebar } from "@/components/AppSidebar";
 
 export default async function ResumeEditPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -16,19 +16,18 @@ export default async function ResumeEditPage({ params }: { params: Promise<{ id:
   const { id } = await params;
 
   return (
-    <div className="flex min-h-full flex-1 flex-col">
-      <AppHeader />
-      <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-6 py-24">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold tracking-tight">Edit resume</h1>
-          <div className="flex gap-4">
-            <Link href={`/resumes/${id}/preview`} className="text-sm text-accent hover:underline">
-              Preview / Export PDF
-            </Link>
-            <Link href="/resumes" className="text-sm text-accent hover:underline">
-              Back to resumes
-            </Link>
-          </div>
+    <div className="flex min-h-full flex-1 flex-col sm:flex-row">
+      <AppSidebar />
+      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-10 sm:py-12">
+        <h1 className="text-2xl font-semibold tracking-tight">Edit resume</h1>
+
+        <div className="mt-4 inline-flex rounded-lg border border-border p-1 text-sm">
+          <span className="rounded-md bg-icon-purple-bg px-3 py-1.5 font-medium text-icon-purple-text">
+            Edit
+          </span>
+          <Link href={`/resumes/${id}/preview`} className="rounded-md px-3 py-1.5 text-muted hover:text-foreground">
+            Preview &amp; Export
+          </Link>
         </div>
 
         <ResumeEditor resumeId={id} />

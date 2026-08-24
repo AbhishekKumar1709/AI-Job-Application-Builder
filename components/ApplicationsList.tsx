@@ -15,6 +15,15 @@ const STATUS_LABEL: Record<Status, string> = {
   WITHDRAWN: "Withdrawn",
 };
 
+const STATUS_BADGE: Record<Status, string> = {
+  SAVED: "bg-icon-blue-bg text-icon-blue-text",
+  APPLIED: "bg-icon-purple-bg text-icon-purple-text",
+  INTERVIEWING: "bg-icon-orange-bg text-icon-orange-text",
+  OFFER: "bg-icon-green-bg text-icon-green-text",
+  REJECTED: "bg-red-500/10 text-red-500",
+  WITHDRAWN: "bg-icon-pink-bg text-icon-pink-text",
+};
+
 type ResumeOption = { id: string; title: string };
 type CoverLetterOption = { id: string; companyName: string | null; createdAt: string };
 
@@ -183,11 +192,38 @@ export function ApplicationsList() {
     <div className="mt-8 flex flex-col gap-6">
       {error && <p className="text-sm text-red-500">{error}</p>}
 
-      {editingId === null && (
-        <button onClick={startAdd} className={`${buttonClass} self-start`}>
-          Add application
-        </button>
-      )}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-1 flex-wrap gap-2">
+          {applications.length > 0 && (
+            <>
+              <input
+                type="text"
+                placeholder="Search company or role…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className={`${inputClass} min-w-0 flex-1`}
+              />
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as Status | "")}
+                className={inputClass}
+              >
+                <option value="">All statuses</option>
+                {STATUSES.map((s) => (
+                  <option key={s} value={s}>
+                    {STATUS_LABEL[s]}
+                  </option>
+                ))}
+              </select>
+            </>
+          )}
+        </div>
+        {editingId === null && (
+          <button onClick={startAdd} className={`${buttonClass} shrink-0`}>
+            + Add Application
+          </button>
+        )}
+      </div>
 
       {editingId && (
         <ApplicationForm
@@ -201,69 +237,72 @@ export function ApplicationsList() {
         />
       )}
 
-      {applications.length > 0 && (
-        <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="Search company or role…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className={`${inputClass} flex-1`}
-          />
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as Status | "")}
-            className={inputClass}
-          >
-            <option value="">All statuses</option>
-            {STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {STATUS_LABEL[s]}
-              </option>
-            ))}
-          </select>
-        </div>
+      {applications.length === 0 && editingId === null && (
+        <p className="rounded-xl border border-border p-6 text-center text-sm text-muted">
+          No applications tracked yet. Click &quot;+ Add Application&quot; to track your first one.
+        </p>
+      )}
+      {applications.length > 0 && filtered.length === 0 && (
+        <p className="rounded-xl border border-border p-6 text-center text-sm text-muted">
+          No applications match your filters.
+        </p>
       )}
 
-      <div className="flex flex-col gap-3">
-        {filtered.map((app) => (
-          <div key={app.id} className="rounded-lg border border-border p-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="font-medium">
-                  {app.role} · {app.company}
-                </p>
-                <p className="mt-1 text-xs text-muted">
-                  {STATUS_LABEL[app.status]}
-                  {app.appliedAt ? ` · Applied ${toDateInput(app.appliedAt)}` : ""}
-                  {app.resume ? ` · Resume: ${app.resume.title}` : ""}
-                  {app.coverLetterId ? " · Cover letter attached" : ""}
-                </p>
-                {app.jobUrl && (
-                  <a href={app.jobUrl} target="_blank" rel="noreferrer" className="mt-1 block text-xs text-accent hover:underline">
-                    Job posting →
-                  </a>
-                )}
-                {app.notes && <p className="mt-2 text-sm text-muted">{app.notes}</p>}
-              </div>
-              <div className="flex gap-2">
-                <button onClick={() => startEdit(app)} className={secondaryButtonClass}>
-                  Edit
-                </button>
-                <button onClick={() => handleDelete(app.id)} className={secondaryButtonClass}>
-                  Delete
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-        {applications.length === 0 && editingId === null && (
-          <p className="text-sm text-muted">No applications tracked yet.</p>
-        )}
-        {applications.length > 0 && filtered.length === 0 && (
-          <p className="text-sm text-muted">No applications match your filters.</p>
-        )}
-      </div>
+      {filtered.length > 0 && (
+        <div className="overflow-x-auto rounded-xl border border-border">
+          <table className="w-full min-w-[720px] text-left text-sm">
+            <thead>
+              <tr className="border-b border-border bg-surface text-xs text-muted">
+                <th className="px-4 py-3 font-medium">Company</th>
+                <th className="px-4 py-3 font-medium">Role</th>
+                <th className="px-4 py-3 font-medium">Status</th>
+                <th className="px-4 py-3 font-medium">Date</th>
+                <th className="px-4 py-3 font-medium">Resume</th>
+                <th className="px-4 py-3 font-medium">Cover Letter</th>
+                <th className="px-4 py-3 font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((app) => (
+                <tr key={app.id} className="border-b border-border last:border-0 hover:bg-surface">
+                  <td className="px-4 py-3 font-medium">{app.company}</td>
+                  <td className="px-4 py-3">
+                    {app.role}
+                    {app.jobUrl && (
+                      <a
+                        href={app.jobUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="ml-2 text-xs text-accent hover:underline"
+                      >
+                        ↗
+                      </a>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${STATUS_BADGE[app.status]}`}>
+                      {STATUS_LABEL[app.status]}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-muted">{app.appliedAt ? toDateInput(app.appliedAt) : "—"}</td>
+                  <td className="px-4 py-3 text-muted">{app.resume ? app.resume.title : "—"}</td>
+                  <td className="px-4 py-3 text-muted">{app.coverLetterId ? "Attached" : "—"}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-2">
+                      <button onClick={() => startEdit(app)} className={secondaryButtonClass}>
+                        Edit
+                      </button>
+                      <button onClick={() => handleDelete(app.id)} className={secondaryButtonClass}>
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

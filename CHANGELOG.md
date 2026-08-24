@@ -1,5 +1,53 @@
 # Changelog
 
+## 2026-08-24 (9)
+
+### Added
+- Redesigned the entire authenticated/internal UI per a detailed
+  user-provided brief — dashboard, profile, resume editor, AI tools,
+  applications, and account settings — while explicitly leaving the
+  public landing page, branding, backend, APIs, database, auth, and
+  every existing route untouched. Full details of what changed on each
+  page are in `docs/UI_DESIGN.md`'s new "Internal UI redesign" section;
+  summary:
+  - New `AppSidebar` (left sidebar desktop / top bar + dropdown mobile)
+    replaces `AppHeader` on the 5 truly authenticated pages;
+    `AppHeader` now only serves login/signup/forgot-password/reset-
+    password/verify-email.
+  - Dashboard: greeting, quick actions, a real recent-activity feed
+    (from actual `Resume`/`Application` timestamps, not invented), and
+    an application-progress mini funnel.
+  - Profile: turned into a 4-step wizard (Basic Info → Experience →
+    Education → Skills) over the same state/API calls.
+  - Resume editor: template picker promoted to its own auto-saving
+    card; Edit/Preview tab control added (routes stayed separate —
+    merging edit+preview into one live page was judged an architecture
+    change, not a reskin, and risked the PDF export flow).
+  - AI Tools: 4 clickable cards (Improve Resume, Check ATS, Match Job,
+    Cover Letter) replace the old always-expanded stacked sections.
+  - Applications: real `<table>` with colored status badges and a
+    prominent "+ Add Application" button, replacing the bordered-card
+    list.
+  - Account settings: regrouped into 4 labeled sections (Account,
+    Security, Data / Privacy, Danger Zone).
+  - A deliberate deviation from the brief: "AI Tools" wasn't given a
+    separate sidebar entry/route, since it only operates on a specific
+    resume and no such standalone destination exists — folded into
+    "Resumes" instead of inventing a route that would immediately need
+    a resume picked anyway.
+
+### Verified
+- Full real-account Playwright run: signed up, walked the profile
+  wizard end-to-end (added a real experience entry through the actual
+  form), created a resume, switched templates, opened an AI tool card,
+  used the Preview & Export tab, added a real application through the
+  new table UI, checked account settings, then repeated key screens at
+  a 390×844 mobile viewport (including opening the mobile nav
+  dropdown) and in dark mode. Zero console errors throughout. Test
+  accounts deleted afterward. Lint, `tsc --noEmit`, and a full
+  production build all clean — same route list as before, confirming
+  no routes were added or removed.
+
 ## 2026-08-24 (8)
 
 ### Fixed

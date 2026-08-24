@@ -8,15 +8,95 @@ type AtsResult = { score: number; issues: string[]; strengths: string[] };
 type MatchResult = { matchScore: number; matchedKeywords: string[]; missingKeywords: string[]; suggestions: string[] };
 type CoverLetter = { id: string; companyName: string | null; jobDescription: string; content: string; createdAt: string };
 
+type Tool = "optimize" | "ats" | "match";
+
+const TOOLS: { key: Tool; label: string; description: string; bg: string; text: string; icon: React.ReactNode }[] = [
+  {
+    key: "optimize",
+    label: "Improve Resume",
+    description: "AI-powered resume optimization",
+    bg: "bg-icon-purple-bg",
+    text: "text-icon-purple-text",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-5 w-5">
+        <path d="M12 3l1.8 5.3L19 10l-5.2 1.7L12 17l-1.8-5.3L5 10l5.2-1.7L12 3z" />
+      </svg>
+    ),
+  },
+  {
+    key: "ats",
+    label: "Check ATS",
+    description: "Get an ATS score and actionable feedback",
+    bg: "bg-icon-green-bg",
+    text: "text-icon-green-text",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-5 w-5">
+        <path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" />
+        <path d="M9 12l2 2 4-4" />
+      </svg>
+    ),
+  },
+  {
+    key: "match",
+    label: "Match Job",
+    description: "Compare your resume with a job description",
+    bg: "bg-icon-blue-bg",
+    text: "text-icon-blue-text",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-5 w-5">
+        <circle cx="12" cy="12" r="8" />
+        <circle cx="12" cy="12" r="4" />
+        <circle cx="12" cy="12" r="0.5" fill="currentColor" />
+      </svg>
+    ),
+  },
+  {
+    key: "match",
+    label: "Cover Letter",
+    description: "Generate a tailored cover letter with AI",
+    bg: "bg-icon-orange-bg",
+    text: "text-icon-orange-text",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-5 w-5">
+        <rect x="3" y="5" width="18" height="14" rx="2" />
+        <path d="M3 7l9 6 9-6" />
+      </svg>
+    ),
+  },
+];
+
 export function ResumeAITools({ resumeId }: { resumeId: string }) {
   const apiBase = `/api/resumes/${resumeId}`;
+  const [active, setActive] = useState<Tool | null>(null);
 
   return (
-    <div className="mt-16 flex flex-col gap-12 border-t border-border pt-10">
-      <h2 className="text-xl font-semibold">AI tools</h2>
-      <OptimizeSection apiBase={apiBase} />
-      <AtsSection apiBase={apiBase} />
-      <MatchAndCoverLetterSection apiBase={apiBase} />
+    <div className="mt-10 flex flex-col gap-6 border-t border-border pt-10">
+      <h2 className="text-xl font-semibold">AI Assistant</h2>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {TOOLS.map((tool) => (
+          <button
+            key={tool.label}
+            onClick={() => setActive(active === tool.key ? null : tool.key)}
+            className={`flex items-start gap-3 rounded-xl border p-4 text-left transition-colors ${
+              active === tool.key
+                ? "border-accent bg-surface"
+                : "border-border hover:border-accent/50 hover:bg-surface"
+            }`}
+          >
+            <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${tool.bg} ${tool.text}`}>
+              {tool.icon}
+            </div>
+            <div>
+              <p className="text-sm font-medium">{tool.label}</p>
+              <p className="text-xs text-muted">{tool.description}</p>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {active === "optimize" && <OptimizeSection apiBase={apiBase} />}
+      {active === "ats" && <AtsSection apiBase={apiBase} />}
+      {active === "match" && <MatchAndCoverLetterSection apiBase={apiBase} />}
     </div>
   );
 }
@@ -41,7 +121,7 @@ function OptimizeSection({ apiBase }: { apiBase: string }) {
   }
 
   return (
-    <section>
+    <section className="rounded-xl border border-border bg-surface p-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Optimization suggestions</h3>
         <button onClick={run} disabled={loading} className={buttonClass}>
@@ -85,7 +165,7 @@ function AtsSection({ apiBase }: { apiBase: string }) {
   }
 
   return (
-    <section>
+    <section className="rounded-xl border border-border bg-surface p-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">ATS compatibility</h3>
         <button onClick={run} disabled={loading} className={buttonClass}>
@@ -215,7 +295,7 @@ function MatchAndCoverLetterSection({ apiBase }: { apiBase: string }) {
   }
 
   return (
-    <section>
+    <section className="rounded-xl border border-border bg-surface p-6">
       <h3 className="text-lg font-semibold">Job match &amp; cover letter</h3>
       <form onSubmit={handleMatch} className="mt-4 flex flex-col gap-3">
         <input
